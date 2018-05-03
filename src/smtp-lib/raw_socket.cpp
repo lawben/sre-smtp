@@ -1,4 +1,4 @@
-#include "rawsocket.hpp"
+#include "raw_socket.hpp"
 
 #ifdef WIN32
 #include <WinSock2.h>
@@ -9,7 +9,7 @@
 #endif
 
 #include <stdexcept>
-
+#include <cerrno>
 
 #ifdef WIN32
 bool RawSocket::s_initialized = false;
@@ -17,10 +17,10 @@ bool RawSocket::s_initialized = false;
 
 namespace {
 #ifdef WIN32
-    static const RawSocket::socketType INVALID_SOCKET_ID = INVALID_SOCKET;
+    static const RawSocket::SocketType INVALID_SOCKET_ID = INVALID_SOCKET;
     static const auto ERROR_CONSTANT = SOCKET_ERROR;
 #else
-    static RawSocket::socketType INVALID_SOCKET_ID = -1;
+    static RawSocket::SocketType INVALID_SOCKET_ID = -1;
     static const auto ERROR_CONSTANT = -1;
 #endif
 }
@@ -40,11 +40,11 @@ RawSocket::RawSocket()
 
     if (m_id == INVALID_SOCKET_ID)
     {
-        throw std::runtime_error(getError());
+        throw std::runtime_error(get_error());
     }
 }
 
-RawSocket::RawSocket(socketType id)
+RawSocket::RawSocket(SocketType id)
     : m_id(id)
 {
 }
@@ -60,15 +60,15 @@ RawSocket::~RawSocket()
 
 void RawSocket::bind(int port)
 {
-    sockaddr_in serverAddr = { 0 };
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(port);
-    serverAddr.sin_addr.s_addr = INADDR_ANY;
+    sockaddr_in server_addr = { 0 };
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port);
+    server_addr.sin_addr.s_addr = INADDR_ANY;
 
-    auto error = ::bind(m_id, (sockaddr*)&serverAddr, sizeof(serverAddr));
+    auto error = ::bind(m_id, (sockaddr*)&server_addr, sizeof(server_addr));
     if (error == ERROR_CONSTANT)
     {
-        throw std::runtime_error(getError());
+        throw std::runtime_error(get_error());
     }
 }
 
@@ -77,24 +77,24 @@ void RawSocket::listen(int backlog)
     auto error = ::listen(m_id, backlog);
     if (error == ERROR_CONSTANT)
     {
-        throw std::runtime_error(getError());
+        throw std::runtime_error(get_error());
     }
 }
 
 RawSocket RawSocket::accept()
 {
-    sockaddr_storage serverStorage;
+    sockaddr_storage server_storage;
 #ifdef WIN32
-    auto addr_size = static_cast<int>(sizeof(serverStorage));
+    auto addr_size = static_cast<int>(sizeof(server_storage));
 #else
-    auto addr_size = static_cast<socklen_t>(sizeof(serverStorage));
+    auto addr_size = static_cast<socklen_t>(sizeof(server_storage));
 #endif
-    return RawSocket(::accept(m_id, (sockaddr*)&serverStorage, &addr_size));
+    return RawSocket(::accept(m_id, (sockaddr*)&server_storage, &addr_size));
 }
 
 std::vector<char> RawSocket::read(size_t size)
 {
-    std::vector<char> buffer(size, 0);
+    Bytes buffer(size, 0);
 
 #ifdef WIN32
     auto get = recv(m_id, buffer.data(), static_cast<int>(size), 0);
@@ -103,7 +103,7 @@ std::vector<char> RawSocket::read(size_t size)
 #endif
     if (get == ERROR_CONSTANT)
     {
-        throw std::runtime_error(getError());
+        throw std::runtime_error(get_error());
     }
 
     buffer.resize(get);
@@ -120,7 +120,7 @@ void RawSocket::write(const std::vector<char>& data)
 
     if (error == ERROR_CONSTANT)
     {
-        throw std::runtime_error(getError());
+        throw std::runtime_error(get_error());
     }
 }
 
@@ -136,19 +136,18 @@ void RawSocket::write(const std::string& data)
 
     if (error == ERROR_CONSTANT)
     {
-        throw std::runtime_error(getError());
+        throw std::runtime_error(get_error());
     }
 }
 
-std::string RawSocket::getError()
+std::string RawSocket::get_error()
 {
 #ifdef WIN32
     int error = WSAGetLastError();
-    char* errorBuffer = nullptr;
+    char* error_buffer = nullptr;
     FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 0, error, GetSystemDefaultLangID(), (LPSTR)&errorBuffer, 0, nullptr);
-    return errorBuffer;
+    return error_buffer;
 #else
-    auto errorBuffer = std::strerror(errno);
-    return errorBuffer;
+    return std::strerror(errno);
 #endif
 }

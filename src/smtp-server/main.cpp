@@ -1,25 +1,12 @@
 #include <iostream>
 
-#include <smtp-lib/rawsocket.hpp>
-
+#include "smtp-lib/smtp_server.hpp"
 
 int main() {
-    RawSocket socket;
-    socket.bind(5555);
-    socket.listen(5);
-
-    int finished = 0;
-    while (!finished) {
-        auto subSocket = socket.accept();
-
-        auto buffer = subSocket.read(1024);
-        for (auto c : buffer)
-        {
-            std::cout << c;
-        }
-        std::cout << '\n';
-
-        subSocket.write("OK");
-        std::cout << "Message Complete\n";
-    }
+  try {
+    SMTPServer::run();
+  } catch (const std::exception& exception) {
+    std::cout << exception.what() << std::endl;
+    return 1;
+  }
 }
