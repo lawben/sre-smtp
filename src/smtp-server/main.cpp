@@ -1,5 +1,7 @@
 
+#include <smtp-lib/smtpserver.h>
+
 int main()
 {
-	return 0;
+    smtpserver::test();
 }
