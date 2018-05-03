@@ -3,7 +3,7 @@
 #include <vector>
 #include "string"
 
-enum Status {
+enum ParserStatus {
     WAIT_INIT,
     WAIT_HELO,
     WAIT_MAIL_FROM,
@@ -13,18 +13,22 @@ enum Status {
     TERMINATED,
 };
 
-struct State {
-    Status status;
+struct Mail {
     std::string mailFrom;
     std::string rcptFrom;
     std::vector<std::string> content;
 };
 
-struct Request {
+struct ParserState {
+    ParserStatus status;
+    std::vector<Mail> mails;
+};
+
+struct ParserRequest {
     std::string message;
 };
 
-struct Response {
+struct ParserResponse {
     int code;
     std::string message;
 };
@@ -32,15 +36,17 @@ struct Response {
 class MailParser {
 public:
     MailParser();
-    MailParser(const State& state);
-    Response accept(const Request& message);
+    MailParser(const ParserState& state);
+    ParserResponse accept(const ParserRequest& message);
     bool isTerminated();
+    std::vector<Mail> getMails();
 private:
-    State m_state;
-    Response handleInit(const Request& request);
-    Response handleHelo(const Request& request);
-    Response handleMailFrom(const Request& request);
-    Response handleRcptFrom(const Request& request);
-    Response handleDataBegin(const Request& request);
-    Response handleData(const Request& request);
+    ParserState m_state;
+    ParserResponse handleInit(const ParserRequest& request);
+    ParserResponse handleHelo(const ParserRequest& request);
+    ParserResponse handleMailFrom(const ParserRequest& request);
+    ParserResponse handleRcptFrom(const ParserRequest& request);
+    ParserResponse handleDataBegin(const ParserRequest& request);
+    ParserResponse handleData(const ParserRequest& request);
+    Mail getCurrentMail();
 };

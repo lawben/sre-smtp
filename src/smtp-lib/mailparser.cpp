@@ -3,13 +3,17 @@
 
 MailParser::MailParser() = default;
 
-MailParser::MailParser(const State &state) : m_state(state) { }
+MailParser::MailParser(const ParserState &state) : m_state(state) { }
 
 bool MailParser::isTerminated() {
     return m_state.status == TERMINATED;
 }
 
-Response MailParser::accept(const Request& request) {
+std::vector<Mail> MailParser::getMails() {
+    return m_state.mails;
+}
+
+ParserResponse MailParser::accept(const ParserRequest& request) {
     switch (m_state.status) {
         case WAIT_INIT:
             return handleInit(request);
@@ -30,49 +34,58 @@ Response MailParser::accept(const Request& request) {
     }
 }
 
-Response MailParser::handleInit(const Request &request) {
+ParserResponse MailParser::handleInit(const ParserRequest &request) {
     m_state.status = WAIT_HELO;
     return {220, "smtp.example.com ESMTP Postfix"};
 }
 
-Response MailParser::handleHelo(const Request &request) {
+ParserResponse MailParser::handleHelo(const ParserRequest &request) {
     // TODO: validate Helo message
     // C: HELO relay.example.com
     m_state.status = WAIT_MAIL_FROM;
     return {250, "smtp.example.com, Hello from me"};
 }
 
-Response MailParser::handleMailFrom(const Request &request) {
+ParserResponse MailParser::handleMailFrom(const ParserRequest &request) {
     // TODO: validate mail from
     // C: MAIL FROM:<bob@example.com>
-    m_state.mailFrom = "bob@example.com";
+    getCurrentMail().mailFrom = "bob@example.com";
     m_state.status = WAIT_RCPT_FROM;
     return {250, "ok"};
 }
 
-Response MailParser::handleRcptFrom(const Request &request) {
+ParserResponse MailParser::handleRcptFrom(const ParserRequest &request) {
     // TODO: validate rcpt from
     // C: RCPT TO:<alice@example.com>
-    m_state.rcptFrom = "alice@example.com";
+    getCurrentMail().rcptFrom = "alice@example.com";
     m_state.status = WAIT_DATA_BEGIN;
     return {250, "ok"};
 }
 
-Response MailParser::handleDataBegin(const Request &request) {
+ParserResponse MailParser::handleDataBegin(const ParserRequest &request) {
+    // TODO: validate data begin (DATA or QUIT)
     if (request.message == "QUIT") {
         m_state.status = TERMINATED;
         return {221, "Bye"};
     }
+    m_state.mails.push_back({});
     m_state.status = WAIT_DATA_END;
     return {354, "End data with <CR><LF>.<CR><LF>"};
 }
 
-Response MailParser::handleData(const Request &request) {
+ParserResponse MailParser::handleData(const ParserRequest &request) {
     // TODO: check for data termination
     if (request.message == ".") {
         m_state.status = WAIT_DATA_BEGIN;
         return {250, "ok: queued"};
     }
-    m_state.content.push_back(request.message);
+    getCurrentMail().content.push_back(request.message);
     return {250, "ok"}; // TODO: check response on data row
+}
+
+Mail MailParser::getCurrentMail() {
+    if (m_state.mails.empty()) {
+        throw std::runtime_error("Invalid state, no mails recieved");
+    }
+    return m_state.mails[m_state.mails.size() - 1];
 }
