@@ -6,6 +6,12 @@
 
 class RawSocket {
 public:
+#ifdef WIN32
+    using socketType = size_t;
+#else
+    using socketType = int;
+#endif
+
     RawSocket();
     ~RawSocket();
     RawSocket(const RawSocket&) = delete;
@@ -22,13 +28,8 @@ public:
     void write(const std::string& data);
 
 private:
-#ifdef WIN32
-    using socketType = size_t;
-#else
-    using socketType = int;
-#endif
-
     explicit RawSocket(socketType id);
+    std::string getError();
 
 #ifdef WIN32
     static bool s_initialized;
