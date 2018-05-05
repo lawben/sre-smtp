@@ -4,5 +4,5 @@
 
 class SMTPServer : public NonCopyable {
  public:
-  static void run();
+  static void run(uint16_t port);
 };

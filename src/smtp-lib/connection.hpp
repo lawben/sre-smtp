@@ -10,6 +10,8 @@ class Connection : public NonCopyable {
   Bytes read();
   void write(const std::vector<char>& bytes);
 
+  RawSocket* get_socket() { return m_raw_socket.get(); };
+
  private:
   std::unique_ptr<RawSocket> m_raw_socket;
 };

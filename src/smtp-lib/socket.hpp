@@ -7,7 +7,7 @@
 
 class Socket : public NonCopyable {
  public:
-  explicit Socket(uint16_t port = 5555);
+  explicit Socket(uint16_t port);
 
   SMTPHandler accept_connection();
 

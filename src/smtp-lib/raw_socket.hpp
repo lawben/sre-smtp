@@ -14,10 +14,11 @@ public:
     using SocketType = int;
 #endif
 
-    RawSocket();
+    static RawSocket new_socket();
+
     ~RawSocket();
-    RawSocket(RawSocket&&) = default;
-    RawSocket& operator=(RawSocket&&) = default;
+    RawSocket(RawSocket&& other) noexcept;
+    RawSocket& operator=(RawSocket&& other) noexcept;
 
     void bind(int port);
     void listen(int backlog);
@@ -28,7 +29,7 @@ public:
 
 private:
     explicit RawSocket(SocketType id);
-    std::string get_error();
+    static std::string get_error();
 
 #ifdef WIN32
     static bool s_initialized;

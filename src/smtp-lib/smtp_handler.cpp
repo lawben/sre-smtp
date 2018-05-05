@@ -21,5 +21,6 @@ void SMTPHandler::run() {
     m_connection->write(response.to_bytes());
 
     // TODO: handle all the things :)
+    return;
   }
 }

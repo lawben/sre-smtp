@@ -6,9 +6,9 @@
 #include <unistd.h>
 #include <memory>
 
-Socket::Socket(const uint16_t port) : m_port(port), m_raw_socket{} {
+Socket::Socket(const uint16_t port) : m_port(port), m_raw_socket(RawSocket::new_socket()) {
   m_raw_socket.bind(m_port);
-  m_raw_socket.listen(10);
+  m_raw_socket.listen(5);
 }
 
 SMTPHandler Socket::accept_connection() {
