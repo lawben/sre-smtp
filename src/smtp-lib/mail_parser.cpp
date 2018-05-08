@@ -29,23 +29,23 @@ ParserResponse MailParser::accept(const ParserRequest& request) {
     case TERMINATED:
       throw std::invalid_argument("Connection already terminated");
     default:
-      throw std::invalid_argument("Invalid status: " + m_state.status);
+      throw std::invalid_argument("Invalid status: " + std::to_string(m_state.status));
     }
 }
 
-ParserResponse MailParser::handle_init(const ParserRequest& request) {
+ParserResponse MailParser::handle_init(const ParserRequest& /*request*/) {
   m_state.status = WAIT_HELO;
   return {220, "smtp.example.com ESMTP Postfix"};
 }
 
-ParserResponse MailParser::handle_helo(const ParserRequest& request) {
+ParserResponse MailParser::handle_helo(const ParserRequest& /*request*/) {
   // TODO: validate Helo message
   // C: HELO relay.example.com
   m_state.status = WAIT_MAIL_FROM;
   return {250, "smtp.example.com, Hello from me"};
 }
 
-ParserResponse MailParser::handle_mail_from(const ParserRequest& request) {
+ParserResponse MailParser::handle_mail_from(const ParserRequest& /*request*/) {
   // TODO: validate mail from
   // C: MAIL FROM:<bob@example.com>
   get_current_mail()->mail_from = "bob@example.com";
@@ -53,7 +53,7 @@ ParserResponse MailParser::handle_mail_from(const ParserRequest& request) {
   return {250, "ok"};
 }
 
-ParserResponse MailParser::handle_rcpt_from(const ParserRequest& request) {
+ParserResponse MailParser::handle_rcpt_from(const ParserRequest& /*request*/) {
   // TODO: validate rcpt from
   // C: RCPT TO:<alice@example.com>
   get_current_mail()->rcpt_from = "alice@example.com";

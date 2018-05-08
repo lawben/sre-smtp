@@ -20,13 +20,17 @@ add_library(
         src/smtp-lib/connection.hpp
         src/smtp-lib/utils.hpp)
 
-# Global flags and include directories
-add_compile_options(-std=c++17 -pthread -Wall -Wextra -pedantic -Werror -Wno-unused-parameter)
-
 set_target_properties(smtp-lib PROPERTIES LINKER_LANGUAGE CXX)
 set_property(TARGET smtp-lib PROPERTY CXX_STANDARD 17)
-if(WIN32)
-  target_link_libraries(smtp-lib wsock32 ws2_32)
+
+if(MSVC)
+	target_link_libraries(smtp-lib wsock32 ws2_32)
+else()
+	set(THREADS_PREFER_PTHREAD_FLAG ON)
+	find_package(Threads REQUIRED)
+	target_link_libraries(smtp-lib Threads::Threads)
+	
+	add_compile_options(-std=c++17 -Wall -Wextra -pedantic -Werror -Wno-unused-parameter)
 endif()
 
 add_executable(smtp-server src/smtp-server/main.cpp)

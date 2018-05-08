@@ -30,6 +30,7 @@ RawSocket RawSocket::new_socket() {
   if (!s_initialized) {
     WSAData wsaData = { 0 };
     WSAStartup(MAKEWORD(2, 2), &wsaData);
+    s_initialized = true;
   }
 #endif
 
@@ -47,11 +48,15 @@ RawSocket RawSocket::new_socket() {
 RawSocket::RawSocket(SocketType id) : m_id(id) {}
 
 RawSocket::~RawSocket() {
+    if (m_id != INVALID_SOCKET_ID)
+    {
+
 #ifdef WIN32
-    closesocket(m_id);
+        closesocket(m_id);
 #else
-    close(m_id);
+        close(m_id);
 #endif
+    }
 }
 
 void RawSocket::bind(int port) {
@@ -83,8 +88,8 @@ RawSocket RawSocket::accept() {
     auto addr_size = static_cast<socklen_t>(sizeof(server_storage));
 #endif
     const auto id = ::accept(m_id, (sockaddr*)&server_storage, &addr_size);
-    return RawSocket{id};
-//    return RawSocket(::accept(m_id, (sockaddr*)&server_storage, &addr_size));
+    //return RawSocket{id};
+    return RawSocket(::accept(m_id, (sockaddr*)&server_storage, &addr_size));
 }
 
 std::vector<char> RawSocket::read(size_t size) {
@@ -104,7 +109,7 @@ std::vector<char> RawSocket::read(size_t size) {
     return buffer;
 }
 
-void RawSocket::write(const std::vector<char>& data) {
+void RawSocket::write(const Bytes& data) {
 #ifdef WIN32
     const auto error = send(m_id, data.data(), static_cast<int>(data.size()), 0);
 #else
@@ -136,7 +141,7 @@ std::string RawSocket::get_error() {
 #ifdef WIN32
     int error = WSAGetLastError();
     char* error_buffer = nullptr;
-    FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 0, error, GetSystemDefaultLangID(), (LPSTR)&errorBuffer, 0, nullptr);
+    FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 0, error, GetSystemDefaultLangID(), (LPSTR)&error_buffer, 0, nullptr);
     return error_buffer;
 #else
     return std::strerror(errno);
