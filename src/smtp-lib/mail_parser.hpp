@@ -5,25 +5,10 @@
 #include "utils.hpp"
 #include "raw_socket.hpp"
 
-enum ParserStatus {
-  WAIT_INIT,
-  WAIT_HELO,
-  WAIT_MAIL_FROM,
-  WAIT_RCPT_FROM,
-  WAIT_DATA_BEGIN,
-  WAIT_DATA_END,
-  TERMINATED,
-};
-
 struct Mail {
-  std::string mail_from;
-  std::string rcpt_from;
-  std::vector<std::string> content;
-};
-
-struct ParserState {
-  ParserStatus status = ParserStatus::WAIT_INIT;
-  std::vector<Mail> mails;
+  std::string from;
+  std::vector<std::string> to;
+  std::string content;
 };
 
 struct ParserRequest {
@@ -47,21 +32,46 @@ struct ParserResponse {
 
 class MailParser : public NonCopyable {
 public:
-  MailParser();
-  explicit MailParser(const ParserState& state);
+  MailParser() = default;
 
   ParserResponse accept(const ParserRequest& message);
-  bool is_terminated() const ;
-  const std::vector<Mail>& get_mails() const;
+  bool has_finished() const;
 
 private:
-  ParserResponse handle_init(const ParserRequest& request);
-  ParserResponse handle_helo(const ParserRequest& request);
-  ParserResponse handle_mail_from(const ParserRequest& request);
-  ParserResponse handle_rcpt_from(const ParserRequest& request);
-  ParserResponse handle_data_begin(const ParserRequest& request);
-  ParserResponse handle_data(const ParserRequest& request);
-  Mail* get_current_mail();
+  enum class ParserStatus {
+    CLIENT_INITIATION,
+    FROM_FIELD,
+    TO_FIELD,
+    TO_FIELD_OR_DATA_BEGIN,
+    DATA_CONTENT_OR_END,
+    QUIT,
+    FINISHED
+  };
 
-  ParserState m_state;
+  enum class BufferStatus {
+    COMPLETE,
+    INCOMPLETE,
+    INVALID
+  };
+
+  struct BufferInformation {
+    BufferStatus status;
+    size_t end;
+  };
+
+  BufferInformation parse_buffer(const std::string& token, bool at_start = true);
+
+  ParserResponse handle_client_initiation(BufferInformation helo_info, BufferInformation ehlo_info);
+  ParserResponse handle_from_field(BufferInformation info);
+  ParserResponse handle_to_field(BufferInformation info);
+  ParserResponse handle_to_and_data(BufferInformation toInfo, BufferInformation data_info);
+  ParserResponse handle_data_begin(BufferInformation info);
+  ParserResponse handle_data_end(BufferInformation info);
+  ParserResponse handle_quit(BufferInformation info);
+
+  size_t find_token(const std::string& token);
+
+  ParserStatus m_state = ParserStatus::CLIENT_INITIATION;
+  Bytes m_buffer;
+  Mail m_mail;
 };

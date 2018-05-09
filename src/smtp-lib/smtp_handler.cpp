@@ -5,6 +5,9 @@
 SMTPHandler::SMTPHandler(std::unique_ptr<Connection> connection) : m_connection(std::move(connection)) {}
 
 void SMTPHandler::run() {
+  std::string greeting = "220 sre-smtp server\r\n";
+  m_connection->write(Bytes(greeting.cbegin(), greeting.cend()));
+
   while(!m_error_occurred) {
     const auto bytes = m_connection->read();
 
@@ -18,9 +21,18 @@ void SMTPHandler::run() {
       return;
     }
 
-    m_connection->write(response.to_bytes());
+    if (!response.message.empty())
+    {
+      m_connection->write(response.to_bytes());
+    }
+
+    if (m_parser.has_finished())
+    {
+      break;
+    }
 
     // TODO: handle all the things :)
-    return;
   }
+
+  return;
 }
