@@ -15,19 +15,19 @@ matrix:
     # Linux + clang + debug
     - os: linux
       env: CONFIG=Debug
-      addons: &clang6
+      addons: &clang5
         apt:
           sources:
-          - llvm-toolchain-trusty-6.0
+          - llvm-toolchain-trusty-5.0
           packages:
-            - clang-6.0
+            - clang-5.0
             - libc++-dev
             - libc++abi-dev
       compiler: clang
 
     # Linux + clang + release
     - os: linux
-      addons: *clang6
+      addons: *clang5
       env: CONFIG=Release
       compiler: clang
 
