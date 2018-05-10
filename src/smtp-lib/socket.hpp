@@ -12,8 +12,8 @@ class Socket : public NonCopyable {
   SMTPHandler accept_connection();
 
  private:
-  RawSocket m_raw_socket;
   const int16_t m_port;
+  RawSocket m_raw_socket;
 };
 
 

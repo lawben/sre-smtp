@@ -60,7 +60,7 @@ RawSocket::~RawSocket() {
 }
 
 void RawSocket::bind(int port) {
-    sockaddr_in server_addr = { 0 };
+    sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(port);
     server_addr.sin_addr.s_addr = INADDR_ANY;
@@ -88,8 +88,7 @@ RawSocket RawSocket::accept() {
     auto addr_size = static_cast<socklen_t>(sizeof(server_storage));
 #endif
     const auto id = ::accept(m_id, (sockaddr*)&server_storage, &addr_size);
-    //return RawSocket{id};
-    return RawSocket(::accept(m_id, (sockaddr*)&server_storage, &addr_size));
+    return RawSocket{id};
 }
 
 std::vector<char> RawSocket::read(size_t size) {
