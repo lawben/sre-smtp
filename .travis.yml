@@ -67,3 +67,4 @@ script:
 install:
   - if [[ $CXX = g++ ]]; then export CXX="g++-7" CC="gcc-7"; fi
   - ${CXX} --version
+  
