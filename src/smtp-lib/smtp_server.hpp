@@ -1,8 +1,22 @@
 #pragma once
 
+#include <atomic>
+#include <thread>
+
 #include "utils.hpp"
 
 class SMTPServer : public NonCopyable {
   public:
-    static void run(uint16_t port);
+    SMTPServer(uint16_t port);
+    void run();
+    bool is_running();
+    void stop();
+
+  private:
+    void accept_connections();
+
+    uint16_t m_port;
+    bool m_is_running;
+    std::atomic<bool> m_stop_requested;
+    std::thread m_receiverThread;
 };
