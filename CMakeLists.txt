@@ -39,6 +39,12 @@ else()
     endif()
 endif()
 
+add_executable(smtp-lib-test src/smtp-lib-test/test.cpp)
+set_property(TARGET smtp-lib-test PROPERTY CXX_STANDARD 17)
+target_include_directories(smtp-lib-test PRIVATE catch src)
+target_link_libraries(smtp-lib-test smtp-lib)
+
+
 add_executable(smtp-server src/smtp-server/main.cpp)
 set_property(TARGET smtp-server PROPERTY CXX_STANDARD 17)
 target_include_directories(smtp-server PRIVATE src)
