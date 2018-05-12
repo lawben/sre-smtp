@@ -3,6 +3,7 @@
 #ifdef WIN32
 #include <WinSock2.h>
 #else
+#include <arpa/inet.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <cstring>
@@ -85,6 +86,25 @@ RawSocket RawSocket::accept() {
     return RawSocket{id};
 }
 
+void RawSocket::connect(std::string& addr, int port) {
+    sockaddr_in clientService;
+    clientService.sin_family = AF_INET;
+    clientService.sin_addr.s_addr = inet_addr(addr.c_str());
+    clientService.sin_port = htons(static_cast<u_short>(port));
+
+    auto iResult = ::connect(m_id, (sockaddr*)&clientService, sizeof(clientService));
+
+#ifdef WIN32
+    if (iResult == SOCKET_ERROR) {
+        wprintf(L"connect function failed with error: %ld\n", WSAGetLastError());
+        iResult = closesocket(m_id);
+        if (iResult == SOCKET_ERROR) wprintf(L"closesocket function failed with error: %ld\n", WSAGetLastError());
+        WSACleanup();
+    }
+#else
+    if (0 > iResult) throw std::runtime_error(get_error());
+#endif
+}
 std::vector<char> RawSocket::read(size_t size) {
     Bytes buffer(size, 0);
 

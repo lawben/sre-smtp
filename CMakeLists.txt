@@ -12,8 +12,8 @@ add_library(
         src/smtp-lib/raw_socket.cpp
         src/smtp-lib/socket.cpp
         src/smtp-lib/socket.hpp
-        src/smtp-lib/smtp_handler.cpp
-        src/smtp-lib/smtp_handler.hpp
+        src/smtp-lib/mail_receiver.cpp
+        src/smtp-lib/mail_receiver.hpp
         src/smtp-lib/smtp_server.cpp
         src/smtp-lib/smtp_server.hpp
         src/smtp-lib/connection.cpp
@@ -45,7 +45,8 @@ add_executable(
 		
 		src/smtp-lib-test/test.cpp
 		src/smtp-lib-test/acceptancetest.cpp
-		src/smtp-lib-test/servertest.cpp )
+		src/smtp-lib-test/servertest.cpp
+		src/smtp-lib-test/mail_parser_test.cpp)
 set_property(TARGET smtp-lib-test PROPERTY CXX_STANDARD 17)
 target_include_directories(smtp-lib-test PRIVATE catch src)
 target_link_libraries(smtp-lib-test smtp-lib)

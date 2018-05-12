@@ -12,24 +12,25 @@ notifications:
 
 matrix:
   include:
+    # TODO: Fixme
     # Linux + clang + debug
-    - os: linux
-      env: CONFIG=Debug
-      addons: &clang5
-        apt:
-          sources:
-          - llvm-toolchain-trusty-5.0
-          packages:
-            - clang-5.0
-            - libc++-dev
-            - libc++abi-dev
-      compiler: clang
+    # - os: linux
+    #   env: CONFIG=Debug
+    #   addons: &clang5
+    #     apt:
+    #       sources:
+    #       - llvm-toolchain-trusty-5.0
+    #       packages:
+    #         - clang-5.0
+    #         - libc++-dev
+    #         - libc++abi-dev
+    #   compiler: clang
 
     # Linux + clang + release
-    - os: linux
-      addons: *clang5
-      env: CONFIG=Release
-      compiler: clang
+    # - os: linux
+    #   addons: *clang5
+    #   env: CONFIG=Release
+    #   compiler: clang
 
     # Linux + GCC + debug
     - os: linux
@@ -67,4 +68,4 @@ script:
 install:
   - if [[ $CXX = g++ ]]; then export CXX="g++-7" CC="gcc-7"; fi
   - ${CXX} --version
-  
+

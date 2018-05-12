@@ -1,5 +1,8 @@
 #pragma once
 
+#include <iterator>
+#include <sstream>
+
 class NonCopyable {
   public:
     NonCopyable() = default;
