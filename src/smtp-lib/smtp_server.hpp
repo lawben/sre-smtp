@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <thread>
 
 #include "utils.hpp"
@@ -12,9 +13,10 @@ class SMTPServer : public NonCopyable {
 	  void stop();
 
   private:
-	  void static accept_connections(uint16_t port);
+	  void accept_connections();
 
 	  uint16_t m_port;
+	  std::atomic<bool> m_stop_requested;
 	  bool m_is_running;
 	  std::thread m_receiverThread;
 };
