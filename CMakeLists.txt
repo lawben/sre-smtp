@@ -22,6 +22,7 @@ add_library(
 
 set_target_properties(smtp-lib PROPERTIES LINKER_LANGUAGE CXX)
 set_property(TARGET smtp-lib PROPERTY CXX_STANDARD 17)
+target_include_directories(smtp-lib PRIVATE src/smtp-lib)
 
 if(MSVC)
 	target_link_libraries(smtp-lib wsock32 ws2_32)
@@ -43,5 +44,3 @@ add_executable(smtp-server src/smtp-server/main.cpp)
 set_property(TARGET smtp-server PROPERTY CXX_STANDARD 17)
 target_include_directories(smtp-server PRIVATE src)
 target_link_libraries(smtp-server smtp-lib)
-
-

@@ -14,7 +14,7 @@ class SMTPHandler : public NonCopyable {
 
  private:
   std::unique_ptr<Connection> m_connection;
-  MailParser m_parser{};
+  MailParser m_parser;
 
   bool m_error_occurred = false;
 };
