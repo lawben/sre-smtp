@@ -9,6 +9,7 @@ struct ParserRequest {
     std::string message;
 
     explicit ParserRequest(const Bytes& bytes) : message(bytes.begin(), bytes.end()) {}
+    explicit ParserRequest(const std::string& bytes) : message(bytes) {}
 };
 
 struct ParserResponse {

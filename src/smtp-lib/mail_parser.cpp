@@ -30,8 +30,7 @@ MailParser::BufferInformation MailParser::parse_buffer(std::string& buffer) {
     if (clrf_index == std::string::npos) {
         return {BufferStatus::INCOMPLETE, ""};
     }
-    size_t line_length = clrf_index + CRLF_TOKEN.length();
-    std::string line = buffer.substr(0, line_length);
-    buffer.erase(0, line_length);
+    std::string line = buffer.substr(0, clrf_index);
+    buffer.erase(0, clrf_index + CRLF_TOKEN.length());
     return {BufferStatus::COMPLETE, line};
 }
