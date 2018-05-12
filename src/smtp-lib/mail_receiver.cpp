@@ -12,8 +12,17 @@ void MailReceiver::run() {
         const auto bytes = m_connection->read();
 
         ParserRequest request{bytes};
-        const auto response = m_parser.accept(request);
+		try {
+			m_parser.accept(request);
+		}
+		catch (const std::runtime_error& e)
+		{
+			std::string msg("error: ");
+			msg += e.what();
+			m_connection->write(msg);
+		}
 
+		m_connection->write("250");
         // TODO: handle all the things :)
     }
 
