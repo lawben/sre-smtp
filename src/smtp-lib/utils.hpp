@@ -1,7 +1,7 @@
 #pragma once
 
-#include <sstream>
 #include <iterator>
+#include <sstream>
 
 class NonCopyable {
   public:

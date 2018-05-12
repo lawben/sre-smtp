@@ -1,8 +1,8 @@
 #pragma once
 
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 #include "raw_socket.hpp"
 #include "utils.hpp"
 
@@ -14,7 +14,7 @@ enum SMTPCommandType {
     QUIT,
     RSET,
 
-    DATA_BODY // Custom type for handling the mail data body
+    DATA_BODY  // Custom type for handling the mail data body
 };
 
 struct SMTPCommand {

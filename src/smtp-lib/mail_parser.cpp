@@ -6,13 +6,9 @@
 namespace {
 static const std::string CRLF_TOKEN = "\r\n";
 static const std::string DATA_END_TOKEN = "\r\n.\r\n";
-static const std::map<SMTPCommandType, SMTPCommandProps> command_to_props {
-        {HELO, {"HELO", true}},
-        {MAIL, {"MAIL", true}},
-        {RCPT, {"RCPT", true}},
-        {DATA, {"DATA", false}},
-        {QUIT, {"QUIT", false}},
-        {RSET, {"RSET", false}},
+static const std::map<SMTPCommandType, SMTPCommandProps> command_to_props{
+    {HELO, {"HELO", true}},  {MAIL, {"MAIL", true}},  {RCPT, {"RCPT", true}},
+    {DATA, {"DATA", false}}, {QUIT, {"QUIT", false}}, {RSET, {"RSET", false}},
 };
 }  // namespace
 
@@ -46,7 +42,7 @@ MailParser::BufferLine MailParser::parse_buffer(std::string& buffer) {
 
 MailParser::BufferLine MailParser::parse_data_buffer(std::string& buffer) {
     if (buffer.size() < DATA_END_TOKEN.size() ||
-            buffer.compare(buffer.size() - DATA_END_TOKEN.size(), buffer.size(), DATA_END_TOKEN) != 0) {
+        buffer.compare(buffer.size() - DATA_END_TOKEN.size(), buffer.size(), DATA_END_TOKEN) != 0) {
         return {BufferStatus::INCOMPLETE, ""};
     }
     std::string data_body = buffer.substr(0, buffer.size() - DATA_END_TOKEN.size());
@@ -90,8 +86,6 @@ SMTPCommand MailParser::line_to_command(std::string& line) {
 std::vector<std::string> MailParser::tokenize(const std::string& input) {
     std::istringstream iss(input);
     std::vector<std::string> tokens;
-    std::copy(std::istream_iterator<std::string>(iss),
-         std::istream_iterator<std::string>(),
-         back_inserter(tokens));
+    std::copy(std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>(), back_inserter(tokens));
     return tokens;
 }

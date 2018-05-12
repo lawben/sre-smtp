@@ -23,7 +23,7 @@ class RawSocket : public NonCopyable {
     void bind(int port);
     void listen(int backlog);
     RawSocket accept();
-	void connect(std::string& addr, int port);
+    void connect(std::string& addr, int port);
     Bytes read(size_t size);
     void write(const Bytes& data);
     void write(const std::string& data);

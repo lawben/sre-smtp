@@ -10,7 +10,7 @@ class Connection : public NonCopyable {
 
     Bytes read();
     void write(const std::vector<char>& bytes);
-	void write(const std::string& message);
+    void write(const std::string& message);
 
     RawSocket* get_socket() { return m_raw_socket.get(); };
 

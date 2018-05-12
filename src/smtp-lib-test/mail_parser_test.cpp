@@ -23,7 +23,6 @@ TEST_CASE("Test HELO", "[MailParser]") {
     REQUIRE(responses[0].data == "my-sender");
 }
 
-
 TEST_CASE("Test MAIL", "[MailParser]") {
     MailParser parser;
     std::vector<SMTPCommand> responses;
