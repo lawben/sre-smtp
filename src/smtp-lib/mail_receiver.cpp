@@ -8,9 +8,9 @@ MailReceiver::MailReceiver(std::unique_ptr<Connection> connection) : m_connectio
 
 void MailReceiver::run() {
     send_response("220 sre-smtp server\r\n");
-	std::string response = "";
 
     while (!m_error_occurred) {
+		std::string response = "";
         const auto bytes = m_connection->read();
 
         ParserRequest request{bytes};
@@ -33,8 +33,20 @@ void MailReceiver::run() {
 std::string MailReceiver::handle_command(const SMTPCommand& command) {
 
 	switch (command.type) {
-		default:
-			return "250 OK";
+	case SMTPCommandType::HELO:
+		return "250 ---";
+	case SMTPCommandType::MAIL:
+		return "250 OK";
+	case SMTPCommandType::RCPT:
+		return "250 OK";
+	case SMTPCommandType::DATA:
+		return "354";
+	case SMTPCommandType::DATA_BODY:
+		return "250 OK";
+	case SMTPCommandType::QUIT:
+		return "221";
+	default:
+		return "500 Bad Syntax";
 	}
 }
 

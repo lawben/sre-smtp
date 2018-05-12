@@ -11,12 +11,12 @@ bool check_return_code(const std::unique_ptr<Connection>& connection, std::strin
 }
 
 TEST_CASE("Send valid mails", "[Message Receiving]") {
-    uint16_t in_port = 5562;
+    uint16_t in_port = 5566;
     auto socket = std::make_unique<RawSocket>(RawSocket::new_socket());
     SMTPServer server(in_port);
     server.run();
 
-    uint16_t out_port = 5563;
+    uint16_t out_port = 5567;
     socket->bind(out_port);
     std::string host = "127.0.0.1";
     socket->connect(host, in_port);
