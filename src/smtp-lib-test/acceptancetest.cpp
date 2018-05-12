@@ -18,7 +18,8 @@ TEST_CASE("Send valid mails", "[Message Receiving]") {
 	
 	uint16_t out_port = 5558;
 	socket->bind(out_port);
-	socket->connect(std::string("127.0.0.1"), in_port);
+	std::string host = "127.0.0.1";
+	socket->connect(host, in_port);
 	auto connection = std::make_unique<Connection>(std::move(socket));
 	
 	REQUIRE(check_return_code(connection, "220"));
