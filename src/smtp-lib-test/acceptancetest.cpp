@@ -42,3 +42,4 @@ TEST_CASE("Send invalid mails", "[Message Receiving]") {
 
 	REQUIRE(false);
 }
+
