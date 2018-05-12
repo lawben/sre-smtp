@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 project(sre-smtp C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -29,8 +29,14 @@ else()
 	set(THREADS_PREFER_PTHREAD_FLAG ON)
 	find_package(Threads REQUIRED)
 	target_link_libraries(smtp-lib Threads::Threads)
-	
-	add_compile_options(-std=c++17 -Wall -Wextra -pedantic -Werror -Wno-unused-parameter)
+
+    set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Wextra -pedantic -Werror -Wno-unused-parameter")
+
+    # Make sure clang actually uses libc++ and noch gnu libstd++
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lc++ -lc++abi")
+    endif()
 endif()
 
 add_executable(smtp-server src/smtp-server/main.cpp)

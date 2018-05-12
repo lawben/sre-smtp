@@ -1,4 +1,7 @@
 #include "socket.hpp"
+
+#include <memory>
+
 #include "connection.hpp"
 
 Socket::Socket(const uint16_t port) : m_port(port), m_raw_socket(RawSocket::new_socket()) {
