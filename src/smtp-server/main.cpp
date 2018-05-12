@@ -9,11 +9,10 @@ int main(int argc, char* argv[]) {
     }
 
     try {
-		SMTPServer server(port);
-		server.run();
-		while (server.is_running())
-		{
-		}
+        SMTPServer server(port);
+        server.run();
+        while (server.is_running()) {
+        }
 
     } catch (const std::exception& exception) {
         std::cout << exception.what() << std::endl;
