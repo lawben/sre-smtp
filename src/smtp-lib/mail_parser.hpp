@@ -31,7 +31,9 @@ class MailParser : public NonCopyable {
     };
 
     BufferInformation parse_buffer(std::string& buffer);
+    BufferInformation parse_data_buffer(std::string& buffer);
+    BufferInformation parse_line_buffer(std::string& buffer);
 
     std::string m_buffer;
-    bool m_is_data_state;
+    bool m_is_data_state = false;
 };
