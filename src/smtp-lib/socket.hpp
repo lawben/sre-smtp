@@ -6,12 +6,12 @@
 #include "smtp_handler.hpp"
 
 class Socket : public NonCopyable {
-   public:
+  public:
     explicit Socket(uint16_t port);
 
     SMTPHandler accept_connection();
 
-   private:
+  private:
     const int16_t m_port;
     RawSocket m_raw_socket;
 };

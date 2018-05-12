@@ -4,7 +4,7 @@
 #include "mail_parser.hpp"
 
 class SMTPHandler : public NonCopyable {
-   public:
+  public:
     explicit SMTPHandler(std::unique_ptr<Connection> connection);
 
     // This is the main SMTP loop. This assumes a valid connection with read/write. It will run in a separate thread.
@@ -12,7 +12,7 @@ class SMTPHandler : public NonCopyable {
 
     RawSocket* get_socket() { return m_connection->get_socket(); }
 
-   private:
+  private:
     std::unique_ptr<Connection> m_connection;
     MailParser m_parser;
 

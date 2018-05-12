@@ -7,7 +7,7 @@
 using Bytes = std::vector<char>;
 
 class RawSocket : public NonCopyable {
-   public:
+  public:
 #ifdef WIN32
     using SocketType = size_t;
 #else
@@ -27,7 +27,7 @@ class RawSocket : public NonCopyable {
     void write(const Bytes& data);
     void write(const std::string& data);
 
-   private:
+  private:
     explicit RawSocket(SocketType id);
     static std::string get_error();
 

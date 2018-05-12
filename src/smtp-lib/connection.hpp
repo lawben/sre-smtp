@@ -5,7 +5,7 @@
 #include "raw_socket.hpp"
 
 class Connection : public NonCopyable {
-   public:
+  public:
     explicit Connection(std::unique_ptr<RawSocket> raw_socket);
 
     Bytes read();
@@ -13,6 +13,6 @@ class Connection : public NonCopyable {
 
     RawSocket* get_socket() { return m_raw_socket.get(); };
 
-   private:
+  private:
     std::unique_ptr<RawSocket> m_raw_socket;
 };

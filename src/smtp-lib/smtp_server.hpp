@@ -3,6 +3,6 @@
 #include "utils.hpp"
 
 class SMTPServer : public NonCopyable {
-   public:
+  public:
     static void run(uint16_t port);
 };

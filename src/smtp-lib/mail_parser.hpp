@@ -31,13 +31,13 @@ struct ParserResponse {
 };
 
 class MailParser : public NonCopyable {
-   public:
+  public:
     MailParser() = default;
 
     ParserResponse accept(const ParserRequest& message);
     bool has_finished() const;
 
-   private:
+  private:
     enum class ParserStatus {
         CLIENT_INITIATION,
         FROM_FIELD,
