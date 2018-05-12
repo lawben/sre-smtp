@@ -1,10 +1,10 @@
-#include "smtp_handler.hpp"
+#include "mail_receiver.hpp"
 
 #include "mail_parser.hpp"
 
-SMTPHandler::SMTPHandler(std::unique_ptr<Connection> connection) : m_connection(std::move(connection)) {}
+MailReceiver::MailReceiver(std::unique_ptr<Connection> connection) : m_connection(std::move(connection)) {}
 
-void SMTPHandler::run() {
+void MailReceiver::run() {
     std::string greeting = "220 sre-smtp server\r\n";
     m_connection->write(Bytes(greeting.cbegin(), greeting.cend()));
 

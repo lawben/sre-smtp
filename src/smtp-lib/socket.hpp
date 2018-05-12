@@ -2,14 +2,15 @@
 
 #include <cstdint>
 #include <vector>
+
 #include "connection.hpp"
-#include "smtp_handler.hpp"
+#include "mail_receiver.hpp"
 
 class Socket : public NonCopyable {
   public:
     explicit Socket(uint16_t port);
 
-    SMTPHandler accept_connection();
+    MailReceiver accept_connection();
 
   private:
     const int16_t m_port;

@@ -24,7 +24,7 @@ void SMTPServer::accept_connections() {
     Socket socket{m_port};
 
     // Start the the handler for a new SMTP request
-    auto handle_client = [](SMTPHandler handler) { handler.run(); };
+    auto handle_client = [](MailReceiver handler) { handler.run(); };
 
     // This is the server's main loop to accept connections
     while (!m_stop_requested) {
