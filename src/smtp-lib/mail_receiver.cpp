@@ -1,5 +1,7 @@
 #include "mail_receiver.hpp"
 
+#include <iostream>
+
 #include "mail_parser.hpp"
 
 MailReceiver::MailReceiver(std::unique_ptr<Connection> connection) : m_connection(std::move(connection)) {}
@@ -13,11 +15,15 @@ void MailReceiver::run() {
 
         ParserRequest request{bytes};
 		try {
-			m_parser.accept(request);
+			const auto smtp_commands = m_parser.accept(request);
+			for(auto token : smtp_commands)
+			{
+				std::cout << token.type << " : " << token.data << std::endl;
+			}
 		}
 		catch (const std::runtime_error& e)
 		{
-			std::string msg("error: ");
+			std::string msg("500 : ");
 			msg += e.what();
 			m_connection->write(msg);
 		}
