@@ -1,7 +1,7 @@
 #pragma once
 
-#include "utils.hpp"
 #include "mail_parser.hpp"
+#include "utils.hpp"
 
 class MailPersister : public NonCopyable {
   public:
@@ -9,5 +9,3 @@ class MailPersister : public NonCopyable {
 
     static bool store_mail(const Mail& mail);
 };
-
-

@@ -1,6 +1,6 @@
 #include <fstream>
-#include <string>
 #include <random>
+#include <string>
 
 #if __has_include(<filesystem>)
 #include <filesystem>
@@ -17,27 +17,25 @@ namespace {
 static const fs::path MAIL_FOLDER = "mails";
 
 std::string random_string(const size_t length) {
-    auto randchar = []() -> char
-    {
+    auto randchar = []() -> char {
         const char charset[] =
             "0123456789"
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             "abcdefghijklmnopqrstuvwxyz";
         const size_t max_index = (sizeof(charset) - 1);
-        return charset[ rand() % max_index ];
+        return charset[rand() % max_index];
     };
-    std::string str(length,0);
+    std::string str(length, 0);
     std::generate_n(str.begin(), length, randchar);
     return str;
 }
-}
+}  // namespace
 
 bool MailPersister::store_mail(const Mail& mail) {
-
     fs::create_directory(MAIL_FOLDER);
     const auto str = random_string(6);
     std::cout << str << std::endl;
-    fs::path mail_path = MAIL_FOLDER /  mail.from / "-" / str;
+    fs::path mail_path = MAIL_FOLDER / mail.from / "-" / str;
     std::ofstream mail_file{mail_path};
     mail_file << "FROM: " << mail.from << std::endl;
 

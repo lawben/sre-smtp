@@ -14,8 +14,8 @@ class MailReceiver : public NonCopyable {
     std::unique_ptr<Connection> m_connection;
     MailParser m_parser;
 
-	std::string handle_command(const SMTPCommand& commnad);
-	void send_response(const std::string& msg);
+    std::string handle_command(const SMTPCommand& commnad);
+    void send_response(const std::string& msg);
 
     bool m_error_occurred = false;
 };

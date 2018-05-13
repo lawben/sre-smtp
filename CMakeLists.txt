@@ -40,7 +40,7 @@ else()
 
     set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Wextra -pedantic -Werror -Wno-unused-parameter")
 
-    # Make sure clang actually uses libc++ and noch gnu libstd++
+    # Make sure clang actually uses libc++ and not gnu libstd++
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lc++ -lc++abi")

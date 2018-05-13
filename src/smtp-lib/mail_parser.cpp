@@ -15,7 +15,7 @@ static const std::map<SMTPCommandType, SMTPCommandProps> command_to_props{
 std::vector<SMTPCommand> MailParser::accept(const ParserRequest& request) {
     m_buffer.append(request.message);
     std::vector<SMTPCommand> responses;
-    BufferLine next_line = parse_buffer(m_buffer);
+    auto next_line = parse_buffer(m_buffer);
     while (next_line.status != BufferStatus::INCOMPLETE) {
         SMTPCommand command;
         if (m_is_data_state) {
@@ -51,24 +51,22 @@ MailParser::BufferLine MailParser::parse_data_buffer(std::string& buffer) {
 }
 
 MailParser::BufferLine MailParser::parse_line_buffer(std::string& buffer) {
-    size_t crlf_index = buffer.find(CRLF_TOKEN);
+    const auto crlf_index = buffer.find(CRLF_TOKEN);
     if (crlf_index == std::string::npos) {
         return {BufferStatus::INCOMPLETE, ""};
     }
-    std::string line = buffer.substr(0, crlf_index);
+    const auto line = buffer.substr(0, crlf_index);
     buffer.erase(0, crlf_index + CRLF_TOKEN.length());
     return {BufferStatus::COMPLETE, line};
 }
 
 SMTPCommand MailParser::line_to_command(std::string& line) {
-    std::vector<std::string> tokens = tokenize(line);
+    const auto tokens = tokenize(line);
     if (tokens.empty()) {
         throw std::runtime_error("Invalid command string: " + line);
     }
-    std::string command_id = tokens[0];
-    for (auto elem : command_to_props) {
-        SMTPCommandType type = elem.first;
-        SMTPCommandProps props = elem.second;
+    const auto command_id = tokens[0];
+    for (const auto& [type, props] : command_to_props) {
         if (props.identifier != command_id) {
             continue;
         }
