@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include "raw_socket.hpp"
-#include "smtp_helper.hpp"
+#include "smtp_utils.hpp"
 #include "utils.hpp"
 
 struct ParserRequest {

@@ -78,12 +78,12 @@ SMTPState MailStateMachine::advanced_state(const SMTPCommand& command) {
 SMTPResponse MailStateMachine::create_valid_response(const SMTPCommand& command) {
     switch (command.type) {
         case SMTPCommandType::DATA_BEGIN:
-            return {354, "End Data with <CR><LF>.<CR><LF>\r\n"};
+            return {354, "End Data with <CR><LF>.<CR><LF>"};
         case SMTPCommandType::QUIT:
-            return {221, "Bye!\r\n"};
+            return {221, "Bye!"};
         default:
-            return {250, "OK\r\n"};
+            return {250, "OK"};
     }
 }
 
-SMTPResponse MailStateMachine::create_invalid_response() { return {500, "Invalid command!\r\n"}; }
+SMTPResponse MailStateMachine::create_invalid_response() { return {500, "Invalid command!"}; }

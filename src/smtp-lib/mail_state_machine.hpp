@@ -1,6 +1,6 @@
 #pragma once
 
-#include "smtp_helper.hpp"
+#include "smtp_utils.hpp"
 
 class MailStateMachine {
   public:

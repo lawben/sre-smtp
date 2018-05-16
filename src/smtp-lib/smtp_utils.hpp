@@ -17,3 +17,5 @@ struct SMTPResponse {
     uint16_t code;
     std::string string;
 };
+
+static const std::string NEWLINE_TOKEN = "\r\n";

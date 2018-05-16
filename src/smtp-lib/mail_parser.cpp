@@ -5,7 +5,6 @@
 #include "mail_parser.hpp"
 
 namespace {
-static const std::string CRLF_TOKEN = "\r\n";
 static const std::string DATA_END_TOKEN = "\r\n.\r\n";
 static const std::map<std::string, SMTPCommandType> string_to_token{{"HELO ", SMTPCommandType::HELO},
                                                                     {"MAIL FROM:", SMTPCommandType::MAIL},
@@ -30,7 +29,7 @@ MailParser::BufferStatus MailParser::get_buffer_status(SimplifiedSMTPState state
     size_t token_position = std::string::npos;
     switch (state) {
         case SimplifiedSMTPState::ENVELOPE:
-            token_position = m_buffer.find(CRLF_TOKEN);
+            token_position = m_buffer.find(NEWLINE_TOKEN);
         case SimplifiedSMTPState::CONTENT:
             token_position = m_buffer.find(DATA_END_TOKEN);
         default:
@@ -67,9 +66,9 @@ SMTPCommand MailParser::parse_envelope_buffer() {
     }
 
     // TODO: check if the data we carry is data we want / if its valid
-    const auto end = m_buffer.find(CRLF_TOKEN);
+    const auto end = m_buffer.find(NEWLINE_TOKEN);
     const auto data = m_buffer.substr(token_position + token.first.length(), end - token.first.length());
-    m_buffer.erase(0, end + CRLF_TOKEN.length());
+    m_buffer.erase(0, end + NEWLINE_TOKEN.length());
 
     return {token.second, data};
 }
