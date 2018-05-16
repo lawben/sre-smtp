@@ -53,15 +53,13 @@ SMTPCommand MailParser::parse_buffer(SimplifiedSMTPState state) {
 
 SMTPCommand MailParser::parse_envelope_buffer() {
     std::pair<std::string, SMTPCommandType> token{"", SMTPCommandType::INVALID};
-    auto token_position = std::string::npos;
 
     // This only works as long as no token is a prefix of another token
     // Check if the string representation of one token is present in the buffer
     for (const auto& conversion : string_to_token) {
-        token_position = m_buffer.find(conversion.first);
         // Only consider this token if we both found it and its at the start
         // This prevents cases like: MAIL FROM:<HELO@test.com>
-        if (token_position != std::string::npos && token_position == 0) {
+        if (auto token_position = m_buffer.find(conversion.first); token_position != std::string::npos && token_position == 0) {
             token = conversion;
             break;
         }
@@ -69,7 +67,7 @@ SMTPCommand MailParser::parse_envelope_buffer() {
 
     // TODO: check if the data we carry is data we want / if its valid
     const auto end = m_buffer.find(NEWLINE_TOKEN);
-    const auto data = m_buffer.substr(token_position + token.first.length(), end - token.first.length());
+    const auto data = m_buffer.substr(token.first.length(), end - token.first.length());
     m_buffer.erase(0, end + NEWLINE_TOKEN.length());
 
     return {token.second, data};
