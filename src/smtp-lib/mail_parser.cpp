@@ -30,8 +30,10 @@ MailParser::BufferStatus MailParser::get_buffer_status(SimplifiedSMTPState state
     switch (state) {
         case SimplifiedSMTPState::ENVELOPE:
             token_position = m_buffer.find(NEWLINE_TOKEN);
+            break;
         case SimplifiedSMTPState::CONTENT:
             token_position = m_buffer.find(DATA_END_TOKEN);
+            break;
         default:
             throw std::runtime_error("Case not implemented.");
     }
