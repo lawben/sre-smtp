@@ -1,8 +1,8 @@
 #pragma once
 
-#include <connection.hpp>
-#include <mail_parser.hpp>
-#include <mail_state_machine.hpp>
+#include "connection.hpp"
+#include "mail_parser.hpp"
+#include "mail_state_machine.hpp"
 
 class MailReceiver : public NonCopyable {
   public:

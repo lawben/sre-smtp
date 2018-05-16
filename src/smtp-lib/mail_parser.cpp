@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <map>
 
-#include <mail_parser.hpp>
+#include "mail_parser.hpp"
 
 namespace {
 static const std::string CRLF_TOKEN = "\r\n";
