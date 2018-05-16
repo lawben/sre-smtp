@@ -33,7 +33,7 @@ SimplifiedSMTPState MailStateMachine::current_simplified_state() const {
 SMTPResponse MailStateMachine::accept(const SMTPCommand& command) {
     bool valid_command = false;
 
-    auto commands = accepted_commands.equal_range(m_state);
+    const auto commands = accepted_commands.equal_range(m_state);
     for (auto it = commands.first; it != commands.second; ++it) {
         if (it->second == command.type) {
             valid_command = true;

@@ -16,7 +16,7 @@ void MailReceiver::run() {
         try {
             const auto smtp_commands = m_parser.accept(request, m_state_machine.current_simplified_state());
             for (auto command : smtp_commands) {
-                auto response = m_state_machine.accept(command);
+                const auto response = m_state_machine.accept(command);
                 send_response(std::to_string(response.code) + " " + response.string);
             }
         } catch (const std::runtime_error& e) {

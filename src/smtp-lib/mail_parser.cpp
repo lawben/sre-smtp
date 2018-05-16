@@ -17,7 +17,7 @@ std::vector<SMTPCommand> MailParser::accept(const ParserRequest& request, Simpli
     std::vector<SMTPCommand> responses;
 
     while (get_buffer_status(state) == BufferStatus::COMPLETE) {
-        auto command = parse_buffer(state);
+        const auto command = parse_buffer(state);
         responses.push_back(command);
     }
 
@@ -66,8 +66,8 @@ SMTPCommand MailParser::parse_envelope_buffer() {
     }
 
     // TODO: check if the data we carry is data we want / if its valid
-    auto end = m_buffer.find(CRLF_TOKEN);
-    auto data = m_buffer.substr(token_position + token.first.length(), end - token.first.length());
+    const auto end = m_buffer.find(CRLF_TOKEN);
+    const auto data = m_buffer.substr(token_position + token.first.length(), end - token.first.length());
     m_buffer.erase(0, end + CRLF_TOKEN.length());
 
     return {token.second, data};
@@ -81,7 +81,7 @@ SMTPCommand MailParser::parse_content_buffer() {
         throw std::runtime_error("Implementation is broken!");
     }
 
-    auto data = m_buffer.substr(0, data_end_position);
+    const auto data = m_buffer.substr(0, data_end_position);
     m_buffer.erase(0, data_end_position + DATA_END_TOKEN.length());
 
     return {SMTPCommandType::DATA, data};
