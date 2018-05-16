@@ -2,7 +2,6 @@
 
 #include "smtp_helper.hpp"
 
-
 class MailStateMachine {
   public:
     MailStateMachine();

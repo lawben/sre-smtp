@@ -1,15 +1,17 @@
 #include <cassert>
-#include <stdexcept>
 #include <map>
+#include <stdexcept>
 
 #include "mail_parser.hpp"
 
 namespace {
 static const std::string CRLF_TOKEN = "\r\n";
 static const std::string DATA_END_TOKEN = "\r\n.\r\n";
-static const std::map<std::string, SMTPCommandType> string_to_token{
-    {"HELO ", SMTPCommandType::HELO}, {"MAIL FROM:", SMTPCommandType::MAIL}, {"RCPT TO:", SMTPCommandType::RCPT},
-    {"DATA", SMTPCommandType::DATA_BEGIN}, {"QUIT", SMTPCommandType::QUIT}};
+static const std::map<std::string, SMTPCommandType> string_to_token{{"HELO ", SMTPCommandType::HELO},
+                                                                    {"MAIL FROM:", SMTPCommandType::MAIL},
+                                                                    {"RCPT TO:", SMTPCommandType::RCPT},
+                                                                    {"DATA", SMTPCommandType::DATA_BEGIN},
+                                                                    {"QUIT", SMTPCommandType::QUIT}};
 }  // namespace
 
 std::vector<SMTPCommand> MailParser::accept(const ParserRequest& request, SimplifiedSMTPState state) {
@@ -26,7 +28,7 @@ std::vector<SMTPCommand> MailParser::accept(const ParserRequest& request, Simpli
 
 MailParser::BufferStatus MailParser::get_buffer_status(SimplifiedSMTPState state) {
     size_t token_position = std::string::npos;
-    switch (state) { 
+    switch (state) {
         case SimplifiedSMTPState::ENVELOPE:
             token_position = m_buffer.find(CRLF_TOKEN);
         case SimplifiedSMTPState::CONTENT:

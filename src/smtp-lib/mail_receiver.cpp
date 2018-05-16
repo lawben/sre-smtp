@@ -28,6 +28,4 @@ void MailReceiver::run() {
     return;
 }
 
-void MailReceiver::send_response(const std::string& msg) {
-    m_connection->write(msg);
-}
+void MailReceiver::send_response(const std::string& msg) { m_connection->write(msg); }

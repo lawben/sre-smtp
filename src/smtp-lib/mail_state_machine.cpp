@@ -2,7 +2,6 @@
 
 #include <map>
 
-
 static const std::multimap<SMTPState, SMTPCommandType> accepted_commands{
     {SMTPState::CLIENT_INIT, SMTPCommandType::HELO},
     {SMTPState::MAIL_FROM, SMTPCommandType::MAIL},
@@ -10,18 +9,11 @@ static const std::multimap<SMTPState, SMTPCommandType> accepted_commands{
     {SMTPState::RCPT_TO_OR_DATA_BEGIN, SMTPCommandType::RCPT},
     {SMTPState::RCPT_TO_OR_DATA_BEGIN, SMTPCommandType::DATA_BEGIN},
     {SMTPState::DATA_CONTENT, SMTPCommandType::DATA},
-    {SMTPState::QUIT, SMTPCommandType::QUIT}
-};
+    {SMTPState::QUIT, SMTPCommandType::QUIT}};
 
-MailStateMachine::MailStateMachine()
-    : m_state(SMTPState::CLIENT_INIT)
-{
+MailStateMachine::MailStateMachine() : m_state(SMTPState::CLIENT_INIT) {}
 
-}
-
-SMTPState MailStateMachine::current_state() const {
-    return m_state;
-}
+SMTPState MailStateMachine::current_state() const { return m_state; }
 
 SimplifiedSMTPState MailStateMachine::current_simplified_state() const {
     if (m_state == SMTPState::DATA_CONTENT) {
@@ -56,7 +48,7 @@ bool MailStateMachine::is_valid_command(const SMTPCommand& command) {
 
 void MailStateMachine::handle_command(const SMTPCommand& command) {
     // TODO: maybe create mail here?
-    (void) command;
+    (void)command;
 }
 
 SMTPState MailStateMachine::advanced_state(const SMTPCommand& command) {
@@ -91,9 +83,7 @@ SMTPResponse MailStateMachine::create_valid_response(const SMTPCommand& command)
             return {221, "Bye!\r\n"};
         default:
             return {250, "OK\r\n"};
-    }    
+    }
 }
 
-SMTPResponse MailStateMachine::create_invalid_response() {
-    return {500, "Invalid command!\r\n"};
-}
+SMTPResponse MailStateMachine::create_invalid_response() { return {500, "Invalid command!\r\n"}; }
