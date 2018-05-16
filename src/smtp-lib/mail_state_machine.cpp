@@ -31,24 +31,27 @@ SimplifiedSMTPState MailStateMachine::current_simplified_state() const {
 }
 
 SMTPResponse MailStateMachine::accept(const SMTPCommand& command) {
-    bool valid_command = false;
-
-    const auto commands = accepted_commands.equal_range(m_state);
-    for (auto it = commands.first; it != commands.second; ++it) {
-        if (it->second == command.type) {
-            valid_command = true;
-            break;
-        }
-    }
+    auto valid_command = is_valid_command(command);
 
     if (!valid_command) {
         return create_invalid_response();
     }
 
     handle_command(command);
-    advance_state(command);
+    m_state = advanced_state(command);
 
     return create_valid_response(command);
+}
+
+bool MailStateMachine::is_valid_command(const SMTPCommand& command) {
+    const auto commands = accepted_commands.equal_range(m_state);
+    for (auto it = commands.first; it != commands.second; ++it) {
+        if (it->second == command.type) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void MailStateMachine::handle_command(const SMTPCommand& command) {
@@ -56,30 +59,25 @@ void MailStateMachine::handle_command(const SMTPCommand& command) {
     (void) command;
 }
 
-void MailStateMachine::advance_state(const SMTPCommand& command) {
+SMTPState MailStateMachine::advanced_state(const SMTPCommand& command) {
     // There is probably a better way to do this, since this is quite error prone
     // Or we need really good tests
     switch (m_state) {
         case SMTPState::CLIENT_INIT:
-            m_state = SMTPState::MAIL_FROM;
-            break;
+            return SMTPState::MAIL_FROM;
         case SMTPState::MAIL_FROM:
-            m_state = SMTPState::RCPT_TO;
-            break;
+            return SMTPState::RCPT_TO;
         case SMTPState::RCPT_TO:
-            m_state = SMTPState::RCPT_TO_OR_DATA_BEGIN;
-            break;
+            return SMTPState::RCPT_TO_OR_DATA_BEGIN;
         case SMTPState::RCPT_TO_OR_DATA_BEGIN:
             if (command.type == SMTPCommandType::DATA_BEGIN) {
-                m_state = SMTPState::DATA_CONTENT;
+                return SMTPState::DATA_CONTENT;
             }
-            break;
+            return SMTPState::RCPT_TO_OR_DATA_BEGIN;
         case SMTPState::DATA_CONTENT:
-            m_state = SMTPState::QUIT;
-            break;
+            return SMTPState::QUIT;
         case SMTPState::QUIT:
-            m_state = SMTPState::FINISHED;
-            break;
+            return SMTPState::FINISHED;
         default:
             throw std::runtime_error("Case not implemented.");
     }

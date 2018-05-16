@@ -15,7 +15,7 @@ void MailReceiver::run() {
         ParserRequest request{bytes};
         try {
             const auto smtp_commands = m_parser.accept(request, m_state_machine.current_simplified_state());
-            for (auto command : smtp_commands) {
+            for (const auto& command : smtp_commands) {
                 const auto response = m_state_machine.accept(command);
                 send_response(std::to_string(response.code) + " " + response.string);
             }

@@ -25,14 +25,16 @@ std::vector<SMTPCommand> MailParser::accept(const ParserRequest& request, Simpli
 }
 
 MailParser::BufferStatus MailParser::get_buffer_status(SimplifiedSMTPState state) {
+    size_t token_position = std::string::npos;
     switch (state) { 
         case SimplifiedSMTPState::ENVELOPE:
-            return m_buffer.find(CRLF_TOKEN) == std::string::npos ? BufferStatus::INCOMPLETE : BufferStatus::COMPLETE;
+            token_position = m_buffer.find(CRLF_TOKEN);
         case SimplifiedSMTPState::CONTENT:
-            return m_buffer.find(DATA_END_TOKEN) == std::string::npos ? BufferStatus::INCOMPLETE : BufferStatus::COMPLETE;
+            token_position = m_buffer.find(DATA_END_TOKEN);
         default:
             throw std::runtime_error("Case not implemented.");
     }
+    return token_position == std::string::npos ? BufferStatus::INCOMPLETE : BufferStatus::COMPLETE;
 }
 
 SMTPCommand MailParser::parse_buffer(SimplifiedSMTPState state) {
@@ -51,18 +53,15 @@ SMTPCommand MailParser::parse_envelope_buffer() {
     auto token_position = std::string::npos;
 
     // This only works as long as no token is a prefix of another token
+    // Check if the string representation of one token is present in the buffer
     for (const auto& conversion : string_to_token) {
         token_position = m_buffer.find(conversion.first);
-        if (token_position != std::string::npos) {
+        // Only consider this token if we both found it and its at the start
+        // This prevents cases like: MAIL FROM:<HELO@test.com>
+        if (token_position != std::string::npos && token_position == 0) {
             token = conversion;
             break;
         }
-    }
-
-    // The token ALWAYS has to be the first thing we find
-    if (token_position != 0) {
-        token_position = 0;
-        token = {"", SMTPCommandType::INVALID};
     }
 
     // TODO: check if the data we carry is data we want / if its valid
