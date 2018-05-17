@@ -39,7 +39,7 @@ RawSocket RawSocket::new_socket() {
 
     const SocketType descriptor_id = socket(PF_INET, SOCK_STREAM, 0);
     if (descriptor_id == INVALID_SOCKET_ID) {
-        throw std::runtime_error(get_error());
+        throw std::runtime_error(get_error_string(get_error_id()));
     }
 
     return RawSocket{descriptor_id};
@@ -56,7 +56,7 @@ RawSocket::RawSocket(SocketType id) : m_id(id) {
 #endif
 
         if (error == ERROR_CONSTANT) {
-            throw std::runtime_error(get_error());
+            throw std::runtime_error(get_error_string(get_error_id()));
         }
     }
 }
@@ -73,23 +73,35 @@ RawSocket::~RawSocket() {
 
 bool RawSocket::is_valid() const { return m_id != INVALID_SOCKET_ID; }
 
-void RawSocket::bind(int port) {
+bool RawSocket::bind(int port) {
     sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(port);
     server_addr.sin_addr.s_addr = INADDR_ANY;
 
     const auto error = ::bind(m_id, (sockaddr*)&server_addr, sizeof(server_addr));
+
     if (error == ERROR_CONSTANT) {
-        throw std::runtime_error(get_error());
+        auto error_id = get_error_id();
+        if (is_temporary_error(error_id)) {
+            return false;
+        }
+        throw std::runtime_error(get_error_string(error_id));
     }
+    return true;
 }
 
-void RawSocket::listen(int backlog) {
+bool RawSocket::listen(int backlog) {
     auto error = ::listen(m_id, backlog);
+
     if (error == ERROR_CONSTANT) {
-        throw std::runtime_error(get_error());
+        auto error_id = get_error_id();
+        if (is_temporary_error(error_id)) {
+            return false;
+        }
+        throw std::runtime_error(get_error_string(error_id));
     }
+    return true;
 }
 
 RawSocket RawSocket::accept() {
@@ -103,34 +115,45 @@ RawSocket RawSocket::accept() {
     return RawSocket{id};
 }
 
-void RawSocket::connect(std::string& addr, int port) {
+bool RawSocket::connect(std::string& addr, int port) {
     sockaddr_in clientService;
     clientService.sin_family = AF_INET;
     inet_pton(AF_INET, addr.c_str(), &clientService.sin_addr.s_addr);
     clientService.sin_port = htons(static_cast<u_short>(port));
 
     auto error = ::connect(m_id, (sockaddr*)&clientService, sizeof(clientService));
+
     if (error == ERROR_CONSTANT) {
-        throw std::runtime_error(get_error());
+        auto error_id = get_error_id();
+        if (is_temporary_error(error_id)) {
+            return false;
+        }
+        throw std::runtime_error(get_error_string(error_id));
     }
+    return true;
 }
 std::vector<char> RawSocket::read(size_t size) {
     Bytes buffer(size, 0);
 
 #ifdef WIN32
-    const auto get = recv(m_id, buffer.data(), static_cast<int>(size), 0);
+    auto get = recv(m_id, buffer.data(), static_cast<int>(size), 0);
 #else
-    const auto get = ::read(m_id, buffer.data(), size);
+    auto get = ::read(m_id, buffer.data(), size);
 #endif
+
     if (get == ERROR_CONSTANT) {
-        throw std::runtime_error(get_error());
+        auto error_id = get_error_id();
+        if (is_temporary_error(error_id)) {
+            get = 0;
+        }
+        throw std::runtime_error(get_error_string(error_id));
     }
 
     buffer.resize(get);
     return buffer;
 }
 
-void RawSocket::write(const Bytes& data) {
+bool RawSocket::write(const Bytes& data) {
 #ifdef WIN32
     const auto error = send(m_id, data.data(), static_cast<int>(data.size()), 0);
 #else
@@ -138,11 +161,16 @@ void RawSocket::write(const Bytes& data) {
 #endif
 
     if (error == ERROR_CONSTANT) {
-        throw std::runtime_error(get_error());
+        auto error_id = get_error_id();
+        if (is_temporary_error(error_id)) {
+            return false;
+        }
+        throw std::runtime_error(get_error_string(error_id));
     }
+    return true;
 }
 
-void RawSocket::write(const std::string& data) {
+bool RawSocket::write(const std::string& data) {
 // std::string::data() returns the string + '\0' which is not included in std::string::size()
 // TODO: check if this poses a problem
 #ifdef WIN32
@@ -152,19 +180,40 @@ void RawSocket::write(const std::string& data) {
 #endif
 
     if (error == ERROR_CONSTANT) {
-        throw std::runtime_error(get_error());
+        auto error_id = get_error_id();
+        if (is_temporary_error(error_id)) {
+            return false;
+        }
+        throw std::runtime_error(get_error_string(error_id));
     }
+    return true;
 }
 
-std::string RawSocket::get_error() {
+int RawSocket::get_error_id() {
 #ifdef WIN32
-    int error = WSAGetLastError();
+    return WSAGetLastError();
+#else
+    return errno;
+#endif
+}
+
+bool RawSocket::is_temporary_error(int error_id)
+{
+#ifdef WIN32
+    return error_id == WSAEWOULDBLOCK;
+#else
+    return error_id == EAGAIN || error_id == EWOULDBLOCK;
+#endif
+}
+
+std::string RawSocket::get_error_string(int error_id) {
+#ifdef WIN32
     char* error_buffer = nullptr;
     FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 0,
-                   error, GetSystemDefaultLangID(), (LPSTR)&error_buffer, 0, nullptr);
+                   error_id, GetSystemDefaultLangID(), (LPSTR)&error_buffer, 0, nullptr);
     return error_buffer;
 #else
-    return std::strerror(errno);
+    return std::strerror(error_id);
 #endif
 }
 

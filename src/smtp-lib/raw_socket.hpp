@@ -25,17 +25,20 @@ class RawSocket{
 
     bool is_valid() const;
 
-    void bind(int port);
-    void listen(int backlog);
+    bool bind(int port);
+    bool listen(int backlog);
     RawSocket accept();
-    void connect(std::string& addr, int port);
+    bool connect(std::string& addr, int port);
     Bytes read(size_t size);
-    void write(const Bytes& data);
-    void write(const std::string& data);
+    bool write(const Bytes& data);
+    bool write(const std::string& data);
 
   private:
     explicit RawSocket(SocketType id);
-    static std::string get_error();
+
+    static int get_error_id();
+    static std::string get_error_string(int error_id);
+    static bool is_temporary_error(int error_id);
 
 #ifdef WIN32
     static bool s_initialized;
