@@ -6,18 +6,21 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(
         smtp-lib
 
-        src/smtp-lib/mail_parser.hpp
-        src/smtp-lib/mail_parser.cpp
-        src/smtp-lib/raw_socket.hpp
-        src/smtp-lib/raw_socket.cpp
-        src/smtp-lib/socket.cpp
-        src/smtp-lib/socket.hpp
-        src/smtp-lib/mail_receiver.cpp
-        src/smtp-lib/mail_receiver.hpp
-        src/smtp-lib/smtp_server.cpp
-        src/smtp-lib/smtp_server.hpp
         src/smtp-lib/connection.cpp
         src/smtp-lib/connection.hpp
+        src/smtp-lib/mail_parser.cpp
+        src/smtp-lib/mail_parser.hpp
+        src/smtp-lib/mail_receiver.cpp
+        src/smtp-lib/mail_receiver.hpp
+        src/smtp-lib/mail_state_machine.cpp
+        src/smtp-lib/mail_state_machine.hpp
+        src/smtp-lib/raw_socket.cpp
+        src/smtp-lib/raw_socket.hpp
+        src/smtp-lib/socket.cpp
+        src/smtp-lib/socket.hpp
+        src/smtp-lib/smtp_server.cpp
+        src/smtp-lib/smtp_server.hpp
+        src/smtp-lib/smtp_utils.hpp
         src/smtp-lib/utils.hpp)
 
 set_target_properties(smtp-lib PROPERTIES LINKER_LANGUAGE CXX)

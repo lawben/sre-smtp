@@ -2,6 +2,7 @@
 
 #include "connection.hpp"
 #include "mail_parser.hpp"
+#include "mail_state_machine.hpp"
 
 class MailReceiver : public NonCopyable {
   public:
@@ -13,9 +14,9 @@ class MailReceiver : public NonCopyable {
   private:
     std::unique_ptr<Connection> m_connection;
     MailParser m_parser;
+    MailStateMachine m_state_machine;
 
-	std::string handle_command(const SMTPCommand& commnad);
-	void send_response(const std::string& msg);
+    void send_response(const std::string& msg);
 
     bool m_error_occurred = false;
 };

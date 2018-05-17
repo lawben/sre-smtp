@@ -2,6 +2,7 @@
 
 #ifdef WIN32
 #include <WinSock2.h>
+#include <Ws2tcpip.h>
 #else
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -89,7 +90,11 @@ RawSocket RawSocket::accept() {
 void RawSocket::connect(std::string& addr, int port) {
     sockaddr_in clientService;
     clientService.sin_family = AF_INET;
+#ifdef WIN32
+    inet_pton(AF_INET, addr.c_str(), &clientService.sin_addr.s_addr);
+#else
     clientService.sin_addr.s_addr = inet_addr(addr.c_str());
+#endif
     clientService.sin_port = htons(static_cast<u_short>(port));
 
     auto iResult = ::connect(m_id, (sockaddr*)&clientService, sizeof(clientService));
@@ -134,8 +139,8 @@ void RawSocket::write(const Bytes& data) {
 }
 
 void RawSocket::write(const std::string& data) {
-    // std::string::data() returns the string + '\0' which is not included in std::string::size()
-    // TODO: check if this poses a problem
+// std::string::data() returns the string + '\0' which is not included in std::string::size()
+// TODO: check if this poses a problem
 #ifdef WIN32
     const auto error = send(m_id, data.data(), static_cast<int>(data.size()), 0);
 #else
