@@ -2,8 +2,10 @@
 
 #ifdef WIN32
 #include <WinSock2.h>
+#include <Ws2tcpip.h>
 #else
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <cstring>
@@ -36,7 +38,6 @@ RawSocket RawSocket::new_socket() {
 #endif
 
     const SocketType descriptor_id = socket(PF_INET, SOCK_STREAM, 0);
-
     if (descriptor_id == INVALID_SOCKET_ID) {
         throw std::runtime_error(get_error());
     }
@@ -44,10 +45,24 @@ RawSocket RawSocket::new_socket() {
     return RawSocket{descriptor_id};
 }
 
-RawSocket::RawSocket(SocketType id) : m_id(id) {}
+RawSocket::RawSocket(SocketType id) : m_id(id) {
+    if (is_valid()) {
+#ifdef WIN32
+        u_long mode = 1;
+        auto error = ioctlsocket(m_id, FIONBIO, &mode);
+#else
+        int flags = fcntl(m_id, F_GETFL, 0);
+        auto error = fcntl(m_id, F_SETFL, flags | O_NONBLOCK);
+#endif
+
+        if (error == ERROR_CONSTANT) {
+            throw std::runtime_error(get_error());
+        }
+    }
+}
 
 RawSocket::~RawSocket() {
-    if (m_id != INVALID_SOCKET_ID) {
+    if (is_valid()) {
 #ifdef WIN32
         closesocket(m_id);
 #else
@@ -55,6 +70,8 @@ RawSocket::~RawSocket() {
 #endif
     }
 }
+
+bool RawSocket::is_valid() const { return m_id != INVALID_SOCKET_ID; }
 
 void RawSocket::bind(int port) {
     sockaddr_in server_addr;
@@ -89,21 +106,13 @@ RawSocket RawSocket::accept() {
 void RawSocket::connect(std::string& addr, int port) {
     sockaddr_in clientService;
     clientService.sin_family = AF_INET;
-    clientService.sin_addr.s_addr = inet_addr(addr.c_str());
+    inet_pton(AF_INET, addr.c_str(), &clientService.sin_addr.s_addr);
     clientService.sin_port = htons(static_cast<u_short>(port));
 
-    auto iResult = ::connect(m_id, (sockaddr*)&clientService, sizeof(clientService));
-
-#ifdef WIN32
-    if (iResult == SOCKET_ERROR) {
-        wprintf(L"connect function failed with error: %ld\n", WSAGetLastError());
-        iResult = closesocket(m_id);
-        if (iResult == SOCKET_ERROR) wprintf(L"closesocket function failed with error: %ld\n", WSAGetLastError());
-        WSACleanup();
+    auto error = ::connect(m_id, (sockaddr*)&clientService, sizeof(clientService));
+    if (error == ERROR_CONSTANT) {
+        throw std::runtime_error(get_error());
     }
-#else
-    if (0 > iResult) throw std::runtime_error(get_error());
-#endif
 }
 std::vector<char> RawSocket::read(size_t size) {
     Bytes buffer(size, 0);
@@ -134,8 +143,8 @@ void RawSocket::write(const Bytes& data) {
 }
 
 void RawSocket::write(const std::string& data) {
-    // std::string::data() returns the string + '\0' which is not included in std::string::size()
-    // TODO: check if this poses a problem
+// std::string::data() returns the string + '\0' which is not included in std::string::size()
+// TODO: check if this poses a problem
 #ifdef WIN32
     const auto error = send(m_id, data.data(), static_cast<int>(data.size()), 0);
 #else

@@ -23,6 +23,8 @@ class RawSocket{
     RawSocket(RawSocket&& other) noexcept;
     RawSocket& operator=(RawSocket&& other) noexcept;
 
+    bool is_valid() const;
+
     void bind(int port);
     void listen(int backlog);
     RawSocket accept();
