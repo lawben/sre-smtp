@@ -30,12 +30,12 @@ TEST_CASE("Open, run and close server", "[SMTPServer]") {
 
 TEST_CASE("Stop server while client is connected", "[SMTPServer]") {
 
-	uint16_t in_port = 5566;
+	uint16_t in_port = 5569;
 	auto socket = std::make_unique<RawSocket>(RawSocket::new_socket());
 	SMTPServer server(in_port);
 	auto server_thread = std::thread(&SMTPServer::run, &server);
 
-	uint16_t out_port = 5567;
+	uint16_t out_port = 5568;
 	socket->bind(out_port);
 	std::string host = "127.0.0.1";
 	socket->connect(host, in_port);

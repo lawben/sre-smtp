@@ -5,6 +5,7 @@
 
 #include "utils.hpp"
 #include "mail_receiver.hpp"
+#include "socket.hpp"
 
 class SMTPServer{
   public:
@@ -15,15 +16,16 @@ class SMTPServer{
 
   private:
     void accept_connections();
+	std::unique_ptr<Connection> accept_connection();
 
-	void wait_incoming_connection();
+	void add_new_mail_receiver(std::unique_ptr<Connection> connection);
 	void start_worker_for_last_mail_receiver();
 
 	void stop_mail_receivers();
 	void request_stop_on_mail_receivers();
 	void join_worker_threads();
 
-    uint16_t m_port;
+	Socket m_socket;
     bool m_is_running;
     std::atomic<bool> m_stop_requested;
 	std::vector<MailReceiver> m_mail_receivers;

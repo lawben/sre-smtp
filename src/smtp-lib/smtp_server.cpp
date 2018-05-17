@@ -3,7 +3,7 @@
 #include "smtp_server.hpp"
 #include "socket.hpp"
 
-SMTPServer::SMTPServer(uint16_t port) : m_port(port), m_is_running(false), m_stop_requested(false) {}
+SMTPServer::SMTPServer(uint16_t port) : m_socket(port), m_is_running(false), m_stop_requested(false) {}
 
 void SMTPServer::run() {
 	m_stop_requested = false;
@@ -23,15 +23,20 @@ void SMTPServer::stop() {
 
 void SMTPServer::accept_connections() {
     while (!m_stop_requested) {
-		wait_incoming_connection();
-		start_worker_for_last_mail_receiver();
+		auto connection = accept_connection();
+		if (connection->is_valid())
+		{
+			add_new_mail_receiver(std::move(connection));
+			start_worker_for_last_mail_receiver();
+		}
     }
 }
 
-void SMTPServer::wait_incoming_connection() {
-	Socket socket{ m_port };
-	auto connection = std::move(socket.accept_connection());
-	//MailReceiver gg(std::move(connection));
+std::unique_ptr<Connection> SMTPServer::accept_connection() {
+	return m_socket.accept_connection();
+}
+
+void SMTPServer::add_new_mail_receiver(std::unique_ptr<Connection> connection) {
 	m_mail_receivers.emplace_back(std::move(connection));
 }
 

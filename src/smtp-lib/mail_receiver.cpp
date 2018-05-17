@@ -13,7 +13,7 @@ void MailReceiver::run() {
 
     while (NoStopNeeded()) {
 		std::string response = "";
-        const auto bytes = m_connection->read();
+		const auto bytes = m_connection->read();
 
         ParserRequest request{bytes};
         try {
@@ -25,8 +25,8 @@ void MailReceiver::run() {
 			response = "500 : ";
 			response += e.what();
         }
-
-		send_response(response);
+		if(response != "")
+			send_response(response);
     }
 
     return;
