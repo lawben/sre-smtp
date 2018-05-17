@@ -23,7 +23,7 @@ SimplifiedSMTPState MailStateMachine::current_simplified_state() const {
 }
 
 SMTPResponse MailStateMachine::accept(const SMTPCommand& command) {
-    auto valid_command = is_valid_command(command);
+    const auto valid_command = is_valid_command(command);
 
     if (!valid_command) {
         return create_invalid_response();

@@ -59,7 +59,7 @@ SMTPCommand MailParser::parse_envelope_buffer() {
     for (const auto& conversion : string_to_token) {
         // Only consider this token if we both found it and its at the start
         // This prevents cases like: MAIL FROM:<HELO@test.com>
-        if (auto token_position = m_buffer.find(conversion.first); token_position != std::string::npos && token_position == 0) {
+        if (auto token_position = m_buffer.find(conversion.first); token_position == 0) {
             token = conversion;
             break;
         }
