@@ -6,9 +6,9 @@
 #include "connection.hpp"
 #include "mail_receiver.hpp"
 
-class Socket {
+class SocketListener {
   public:
-    explicit Socket(uint16_t port);
+    explicit SocketListener(uint16_t port);
 
     std::unique_ptr<Connection> accept_connection();
 

@@ -1,9 +1,9 @@
 #include <thread>
 
 #include "smtp_server.hpp"
-#include "socket.hpp"
+#include "socket_listener.hpp"
 
-SMTPServer::SMTPServer(uint16_t port) : m_socket(port), m_is_running(false), m_stop_requested(false) {}
+SMTPServer::SMTPServer(uint16_t port) : m_socket_listener(port), m_is_running(false), m_stop_requested(false) {}
 
 void SMTPServer::run() {
 	m_stop_requested = false;
@@ -33,7 +33,7 @@ void SMTPServer::accept_connections() {
 }
 
 std::unique_ptr<Connection> SMTPServer::accept_connection() {
-	return m_socket.accept_connection();
+	return m_socket_listener.accept_connection();
 }
 
 void SMTPServer::add_new_mail_receiver(std::unique_ptr<Connection> connection) {

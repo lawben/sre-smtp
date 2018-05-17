@@ -5,7 +5,7 @@
 
 #include "utils.hpp"
 #include "mail_receiver.hpp"
-#include "socket.hpp"
+#include "socket_listener.hpp"
 
 class SMTPServer{
   public:
@@ -25,7 +25,7 @@ class SMTPServer{
 	void request_stop_on_mail_receivers();
 	void join_worker_threads();
 
-	Socket m_socket;
+	SocketListener m_socket_listener;
     bool m_is_running;
     std::atomic<bool> m_stop_requested;
 	std::vector<MailReceiver> m_mail_receivers;
