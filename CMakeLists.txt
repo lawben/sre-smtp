@@ -43,10 +43,13 @@ endif()
 add_executable(
 		smtp-lib-test 
 		
-		src/smtp-lib-test/test.cpp
-		src/smtp-lib-test/acceptancetest.cpp
-		src/smtp-lib-test/servertest.cpp
-		src/smtp-lib-test/mail_parser_test.cpp)
+		src/smtp-lib-test/acceptance_test.cpp
+		src/smtp-lib-test/connection_test.cpp
+		src/smtp-lib-test/mail_parser_test.cpp
+		src/smtp-lib-test/raw_socket_test.cpp
+		src/smtp-lib-test/server_test.cpp
+		src/smtp-lib-test/socket_listener_test.cpp
+		src/smtp-lib-test/test.cpp)
 set_property(TARGET smtp-lib-test PROPERTY CXX_STANDARD 17)
 target_include_directories(smtp-lib-test PRIVATE catch src)
 target_link_libraries(smtp-lib-test smtp-lib)

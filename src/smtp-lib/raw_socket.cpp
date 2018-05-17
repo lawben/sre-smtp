@@ -145,8 +145,10 @@ std::vector<char> RawSocket::read(size_t size) {
         auto error_id = get_error_id();
         if (is_temporary_error(error_id)) {
             get = 0;
-        }
-        throw std::runtime_error(get_error_string(error_id));
+		}
+		else {
+			throw std::runtime_error(get_error_string(error_id));
+		}
     }
 
     buffer.resize(get);
