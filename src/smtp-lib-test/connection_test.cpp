@@ -40,6 +40,4 @@ TEST_CASE("bidirectional communicaton", "[connection]") {
 		std::string message(bytes.begin(), bytes.end());
 		CHECK(to_respond == message);
 	}
-
-
 }
