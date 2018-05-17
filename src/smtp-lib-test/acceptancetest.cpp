@@ -14,7 +14,7 @@ TEST_CASE("Send valid mails", "[Message Receiving]") {
     uint16_t in_port = 5566;
     auto socket = std::make_unique<RawSocket>(RawSocket::new_socket());
     SMTPServer server(in_port);
-    server.run();
+	auto server_thread = std::thread(&SMTPServer::run, &server);
 
     uint16_t out_port = 5567;
     socket->bind(out_port);
@@ -52,6 +52,8 @@ TEST_CASE("Send valid mails", "[Message Receiving]") {
     CHECK(check_return_code(connection, "221"));
 
     server.stop();
+
+	server_thread.join();
 }
 
 TEST_CASE("Send invalid mails", "[Message Receiving]") { REQUIRE(false); }

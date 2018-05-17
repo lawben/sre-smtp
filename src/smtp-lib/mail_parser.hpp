@@ -34,7 +34,7 @@ struct ParserRequest {
     explicit ParserRequest(const std::string& bytes) : message(bytes) {}
 };
 
-class MailParser : public NonCopyable {
+class MailParser {
   public:
     MailParser() = default;
 

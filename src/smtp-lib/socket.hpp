@@ -6,11 +6,11 @@
 #include "connection.hpp"
 #include "mail_receiver.hpp"
 
-class Socket : public NonCopyable {
+class Socket {
   public:
     explicit Socket(uint16_t port);
 
-    MailReceiver accept_connection();
+    std::unique_ptr<Connection> accept_connection();
 
   private:
     const int16_t m_port;

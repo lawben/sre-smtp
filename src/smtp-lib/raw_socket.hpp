@@ -6,8 +6,9 @@
 
 using Bytes = std::vector<char>;
 
-class RawSocket : public NonCopyable {
+class RawSocket{
   public:
+
 #ifdef WIN32
     using SocketType = size_t;
 #else
@@ -17,6 +18,8 @@ class RawSocket : public NonCopyable {
     static RawSocket new_socket();
 
     ~RawSocket();
+	RawSocket(const RawSocket&) = delete;
+	RawSocket& operator=(const RawSocket&) = delete;
     RawSocket(RawSocket&& other) noexcept;
     RawSocket& operator=(RawSocket&& other) noexcept;
 

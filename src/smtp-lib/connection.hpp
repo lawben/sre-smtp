@@ -4,7 +4,7 @@
 #include <vector>
 #include "raw_socket.hpp"
 
-class Connection : public NonCopyable {
+class Connection {
   public:
     explicit Connection(std::unique_ptr<RawSocket> raw_socket);
 
