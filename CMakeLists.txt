@@ -10,8 +10,8 @@ add_library(
         src/smtp-lib/mail_parser.cpp
         src/smtp-lib/raw_socket.hpp
         src/smtp-lib/raw_socket.cpp
-        src/smtp-lib/socket.cpp
-        src/smtp-lib/socket.hpp
+        src/smtp-lib/socket_listener.cpp
+        src/smtp-lib/socket_listener.hpp
         src/smtp-lib/mail_receiver.cpp
         src/smtp-lib/mail_receiver.hpp
         src/smtp-lib/smtp_server.cpp

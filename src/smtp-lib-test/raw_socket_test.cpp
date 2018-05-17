@@ -4,7 +4,6 @@
 #include <chrono>
 
 #include "smtp-lib/connection.hpp"
-#include "smtp-lib/socket.hpp"
 
 TEST_CASE("open socket", "[raw_socket]") {
 
