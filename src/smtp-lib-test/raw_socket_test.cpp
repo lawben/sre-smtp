@@ -60,3 +60,31 @@ TEST_CASE("accept listender", "[raw_socket]") {
 	auto receiver = std::make_unique<RawSocket>(server->accept());
 	CHECK(receiver->is_valid());
 }
+
+TEST_CASE("write and receive", "[raw_socket]") {
+
+	auto server = std::make_unique<RawSocket>(RawSocket::new_socket());
+	uint16_t server_port = 5556;
+	CHECK(server->bind(server_port));
+	CHECK(server->listen(5));
+
+	auto sender = std::make_unique<RawSocket>(RawSocket::new_socket());
+	uint16_t sender_port = 5555;
+	CHECK(sender->bind(sender_port));
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+	CHECK(sender->connect(std::string("127.0.0.1"), server_port));
+
+	auto receiver = std::make_unique<RawSocket>(server->accept());
+	CHECK(receiver->is_valid());
+
+	std::string to_send = "test";
+	CHECK(sender->write(to_send));
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+	auto bytes = receiver->read(4);
+	std::string message(bytes.begin(), bytes.end());
+	CHECK(to_send == message);
+}
