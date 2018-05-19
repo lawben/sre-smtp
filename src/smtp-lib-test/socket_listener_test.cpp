@@ -1,8 +1,5 @@
 #include "catch/catch.hpp"
 
-#include <thread>
-#include <chrono>
-
 #include "smtp-lib/socket_listener.hpp"
 
 #include "smtp-lib-test/helpers.hpp"
