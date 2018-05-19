@@ -7,21 +7,17 @@
 #include "smtp-lib-test/helpers.hpp"
 
 TEST_CASE("send valid mails", "[acceptance_test]") {
-    uint16_t in_port = 5566;
-    auto socket = std::make_unique<RawSocket>(RawSocket::new_socket());
-    SMTPServer server(in_port);
+    uint16_t server_port = 5555;
+	std::string server_address = "127.0.0.1";
+    SMTPServer server(server_port);
 	auto server_thread = std::thread(&SMTPServer::run, &server);
 
+    uint16_t client_port = 5556;
+	auto client = RawSocket::new_socket(client_port);
+	client.connect(server_address, server_port);
+    auto connection = std::make_unique<Connection>(std::make_unique<RawSocket>(std::move(client)));
+
 	wait_for_network_interaction();
-
-    uint16_t out_port = 5567;
-    std::string host = "127.0.0.1";
-    socket->bind(out_port);
-
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-    socket->connect(host, in_port);
-    auto connection = std::make_unique<Connection>(std::move(socket));
 
     CHECK(check_return_code(connection, "220"));
 
