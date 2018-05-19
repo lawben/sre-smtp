@@ -28,8 +28,6 @@ void MailReceiver::run() {
 		if(response != "")
 			send_response(response);
     }
-
-    return;
 }
 
 std::string MailReceiver::handle_command(const SMTPCommand& command) {

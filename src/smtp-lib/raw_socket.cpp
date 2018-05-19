@@ -115,7 +115,7 @@ RawSocket RawSocket::accept() {
     return RawSocket{id};
 }
 
-bool RawSocket::connect(std::string& addr, int port) {
+void RawSocket::connect(std::string& addr, int port) {
     sockaddr_in clientService;
     clientService.sin_family = AF_INET;
     inet_pton(AF_INET, addr.c_str(), &clientService.sin_addr.s_addr);
@@ -125,12 +125,10 @@ bool RawSocket::connect(std::string& addr, int port) {
 
     if (error == ERROR_CONSTANT) {
         auto error_id = get_error_id();
-        if (is_temporary_error(error_id)) {
-            return false;
+        if (!is_temporary_error(error_id)) {
+			throw std::runtime_error(get_error_string(error_id));
         }
-        throw std::runtime_error(get_error_string(error_id));
     }
-    return true;
 }
 std::vector<char> RawSocket::read(size_t size) {
     Bytes buffer(size, 0);

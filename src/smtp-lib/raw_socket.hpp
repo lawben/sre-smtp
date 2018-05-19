@@ -28,7 +28,7 @@ class RawSocket{
     bool bind(int port);
     bool listen(int backlog);
     RawSocket accept();
-    bool connect(std::string& addr, int port);
+    void connect(std::string& addr, int port);
     Bytes read(size_t size);
     bool write(const Bytes& data);
     bool write(const std::string& data);
