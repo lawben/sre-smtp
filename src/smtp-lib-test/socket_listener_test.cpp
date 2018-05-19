@@ -24,13 +24,13 @@ TEST_CASE("accept listeners", "[socket_listener]") {
 	uint16_t sender_port_2 = 5558;
 	uint16_t sender_port_3 = 5559;
 
-	auto sender_1 = std::make_unique<RawSocket>(RawSocket::new_socket(sender_port_1));
-	auto sender_2 = std::make_unique<RawSocket>(RawSocket::new_socket(sender_port_2));
-	auto sender_3 = std::make_unique<RawSocket>(RawSocket::new_socket(sender_port_3));
+	auto sender_1 = RawSocket::new_socket(sender_port_1);
+	auto sender_2 = RawSocket::new_socket(sender_port_2);
+	auto sender_3 = RawSocket::new_socket(sender_port_3);
 	
-	sender_1->connect(std::string(host), port);
-	sender_2->connect(std::string(host), port);
-	sender_3->connect(std::string(host), port);
+	sender_1.connect(std::string(host), port);
+	sender_2.connect(std::string(host), port);
+	sender_3.connect(std::string(host), port);
 
 	wait_for_network_interaction();
 	
