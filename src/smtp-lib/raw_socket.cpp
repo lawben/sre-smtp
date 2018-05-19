@@ -45,6 +45,11 @@ RawSocket RawSocket::new_socket() {
     return RawSocket{descriptor_id};
 }
 
+RawSocket RawSocket::new_socket(uint16_t port) {
+	auto socket = new_socket();
+	socket.bind(port);
+	return socket;
+}
 RawSocket::RawSocket(SocketType id) : m_id(id) {
     if (is_valid()) {
 #ifdef WIN32

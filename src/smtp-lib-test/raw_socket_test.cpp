@@ -20,62 +20,63 @@ TEST_CASE("bind socket", "[raw_socket]") {
 	uint16_t port = 5555;
 	CHECK(socket->bind(port));
 	CHECK(socket->is_valid());
+
+	uint16_t other_port = 5556;
+	CHECK_THROWS(socket->bind(other_port));
 }
 
-TEST_CASE("bind socket twice", "[raw_socket]") {
+TEST_CASE("oepn with bind socket", "[raw_socket]") {
 
-	auto socket = std::make_unique<RawSocket>(RawSocket::new_socket());
 	uint16_t port = 5555;
-	uint16_t other_port = 5556;
-	CHECK(socket->bind(port));
+	auto socket = std::make_unique<RawSocket>(RawSocket::new_socket(port));
 	CHECK(socket->is_valid());
-	CHECK_THROWS(socket->bind(other_port));
+	CHECK_THROWS(std::make_unique<RawSocket>(RawSocket::new_socket(port)));
 }
 
 TEST_CASE("accept with no listender", "[raw_socket]") {
 
-	auto listener = std::make_unique<RawSocket>(RawSocket::new_socket());
-	uint16_t listener_port = 5556;
-	listener->bind(listener_port);
-	listener->listen(5);
+	uint16_t port = 5556;
+	auto socket = std::make_unique<RawSocket>(RawSocket::new_socket(port));
+	
+	CHECK(socket->listen(5));
 
-	auto receiver = std::make_unique<RawSocket>(listener->accept());
+	auto receiver = std::make_unique<RawSocket>(socket->accept());
 	CHECK_FALSE(receiver->is_valid());
 }
 
 TEST_CASE("accept listender", "[raw_socket]") {
 
-	auto listener = std::make_unique<RawSocket>(RawSocket::new_socket());
-	uint16_t listener_port = 5556;
-	listener->bind(listener_port);
-	listener->listen(5);
+	uint16_t port = 5556;
+	auto socket = std::make_unique<RawSocket>(RawSocket::new_socket(port));
 
-	auto sender = std::make_unique<RawSocket>(RawSocket::new_socket());
+	socket->listen(5);
+
 	uint16_t sender_port = 5555;
-	sender->bind(sender_port);
-	sender->connect(std::string("127.0.0.1"), listener_port);
+	auto sender = std::make_unique<RawSocket>(RawSocket::new_socket(sender_port));
+
+	sender->connect(std::string("127.0.0.1"), port);
 
 	wait_for_network_interaction();
 
-	auto receiver = std::make_unique<RawSocket>(listener->accept());
+	auto receiver = std::make_unique<RawSocket>(socket->accept());
 	CHECK(receiver->is_valid());
 }
 
 TEST_CASE("write and receive", "[raw_socket]") {
 
-	auto listener = std::make_unique<RawSocket>(RawSocket::new_socket());
-	uint16_t listener_port = 5556;
-	listener->bind(listener_port);
-	listener->listen(5);
+	uint16_t port = 5556;
+	auto socket = std::make_unique<RawSocket>(RawSocket::new_socket(port));
 
-	auto sender = std::make_unique<RawSocket>(RawSocket::new_socket());
+	socket->listen(5);
+
 	uint16_t sender_port = 5555;
-	sender->bind(sender_port);
-	sender->connect(std::string("127.0.0.1"), listener_port);
+	auto sender = std::make_unique<RawSocket>(RawSocket::new_socket(sender_port));
+
+	sender->connect(std::string("127.0.0.1"), port);
 
 	wait_for_network_interaction();
 
-	auto receiver = std::make_unique<RawSocket>(listener->accept());
+	auto receiver = std::make_unique<RawSocket>(socket->accept());
 	CHECK(receiver->is_valid());
 
 	std::string to_send = "test";
