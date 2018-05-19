@@ -4,21 +4,22 @@
 #include "smtp-lib/raw_socket.hpp"
 #include "smtp-lib/smtp_server.hpp"
 
-bool check_return_code(const std::unique_ptr<Connection>& connection, std::string prefix) {
-    const auto bytes = connection->read();
-    std::string result(bytes.begin(), bytes.end());
-    return result.find(prefix) == 0;
-}
+#include "smtp-lib-test/helpers.hpp"
 
-TEST_CASE("Send valid mails", "[Message Receiving]") {
+TEST_CASE("send valid mails", "[acceptance_test]") {
     uint16_t in_port = 5566;
     auto socket = std::make_unique<RawSocket>(RawSocket::new_socket());
     SMTPServer server(in_port);
 	auto server_thread = std::thread(&SMTPServer::run, &server);
 
+	wait_for_network_interaction();
+
     uint16_t out_port = 5567;
-    socket->bind(out_port);
     std::string host = "127.0.0.1";
+    socket->bind(out_port);
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
     socket->connect(host, in_port);
     auto connection = std::make_unique<Connection>(std::move(socket));
 

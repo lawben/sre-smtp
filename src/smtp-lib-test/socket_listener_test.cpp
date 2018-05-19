@@ -5,6 +5,8 @@
 
 #include "smtp-lib/socket_listener.hpp"
 
+#include "smtp-lib-test/helpers.hpp"
+
 TEST_CASE("accept with no listener", "[socket_listener]") {
 
 	uint16_t port = 5556;
@@ -27,16 +29,9 @@ TEST_CASE("accept listeners", "[socket_listener]") {
 		auto sender = std::make_unique<RawSocket>(RawSocket::new_socket());
 		CHECK(sender->bind(sender_port));
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		CHECK(sender->connect(std::string(host), port));
+		sender->connect(std::string(host), port);
 
-		auto connection = socket.accept_connection();
-		CHECK(connection->is_valid());
-	}
-	{
-		auto sender = std::make_unique<RawSocket>(RawSocket::new_socket());
-		CHECK(sender->bind(sender_port));
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		CHECK(sender->connect(std::string(host), port));
+		wait_for_network_interaction();
 		
 		auto connection = socket.accept_connection();
 		CHECK(connection->is_valid());
@@ -45,7 +40,20 @@ TEST_CASE("accept listeners", "[socket_listener]") {
 		auto sender = std::make_unique<RawSocket>(RawSocket::new_socket());
 		CHECK(sender->bind(sender_port));
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		CHECK(sender->connect(std::string(host), port));
+		sender->connect(std::string(host), port);
+
+		wait_for_network_interaction();
+
+		auto connection = socket.accept_connection();
+		CHECK(connection->is_valid());
+	}
+	{
+		auto sender = std::make_unique<RawSocket>(RawSocket::new_socket());
+		CHECK(sender->bind(sender_port));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		sender->connect(std::string(host), port);
+
+		wait_for_network_interaction();
 
 		auto connection = socket.accept_connection();
 		CHECK(connection->is_valid());

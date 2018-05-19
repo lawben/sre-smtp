@@ -5,10 +5,12 @@
 
 #include "smtp-lib/socket_listener.hpp"
 
+#include "smtp-lib-test/helpers.hpp"
+
 TEST_CASE("bidirectional communicaton", "[connection]") {
 
 	uint16_t port = 5556;
-	SocketListener socket(port);
+	SocketListener listener(port);
 
 	auto client = std::make_unique<RawSocket>(RawSocket::new_socket());
 	uint16_t client_port = 5555;
@@ -16,16 +18,19 @@ TEST_CASE("bidirectional communicaton", "[connection]") {
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-	CHECK(client->connect(std::string("127.0.0.1"), port));
+	client->connect(std::string("127.0.0.1"), port);
 	
-	auto connection = socket.accept_connection();
-	CHECK(connection->is_valid());
+	wait_for_network_interaction();
+
+	auto connection = listener.accept_connection();
+	connection->is_valid();
 
 	{
 		std::string to_send = "Want to communicate?";
 		client->write(to_send);
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		wait_for_network_interaction();
+
 		auto bytes = connection->read();
 		std::string message(bytes.begin(), bytes.end());
 		CHECK(to_send == message);
@@ -34,7 +39,7 @@ TEST_CASE("bidirectional communicaton", "[connection]") {
 		std::string to_respond = "250 OK";
 		connection->write(to_respond);
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		wait_for_network_interaction();
 
 		auto bytes = client->read(1024);
 		std::string message(bytes.begin(), bytes.end());
