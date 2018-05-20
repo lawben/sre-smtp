@@ -6,7 +6,7 @@
 
 #include "smtp-lib-test/helpers.hpp"
 
-TEST_CASE("run server", "[SMTPServer]") {
+TEST_CASE("run server", "[smtp_server]") {
     
 	SMTPServer server(8080);
 
@@ -24,7 +24,7 @@ TEST_CASE("run server", "[SMTPServer]") {
 	server_thread.join();
 }
 
-TEST_CASE("Stop server while client is connected", "[SMTPServer]") {
+TEST_CASE("Stop server while client is connected", "[smtp_server]") {
 
 	uint16_t server_port = 5555;
 	std::string server_address = "127.0.0.1";
