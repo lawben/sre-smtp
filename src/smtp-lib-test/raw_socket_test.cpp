@@ -22,7 +22,7 @@ TEST_CASE("bind socket", "[raw_socket]") {
 	CHECK_THROWS(socket.bind(other_port));
 }
 
-TEST_CASE("oepn with bind socket", "[raw_socket]") {
+TEST_CASE("open with bind socket", "[raw_socket]") {
 
 	uint16_t port = 5555;
 	auto socket = RawSocket::new_socket(port);
@@ -33,30 +33,56 @@ TEST_CASE("oepn with bind socket", "[raw_socket]") {
 TEST_CASE("accept with no listender", "[raw_socket]") {
 
 	uint16_t port = 5556;
-	auto socket = RawSocket::new_socket(port);
+	auto listener = RawSocket::new_socket(port);
 	
-	CHECK(socket.listen(5));
+	CHECK(listener.listen(5));
 
-	auto receiver = socket.accept();
+	auto receiver = listener.accept();
 	CHECK_FALSE(receiver.is_valid());
 }
 
 TEST_CASE("accept listender", "[raw_socket]") {
 
 	uint16_t port = 5556;
-	auto socket = RawSocket::new_socket(port);
-
-	socket.listen(5);
+	auto listener = RawSocket::new_socket(port);
+	listener.listen(5);
 
 	uint16_t sender_port = 5555;
 	auto sender = RawSocket::new_socket(sender_port);
-
 	sender.connect(std::string("127.0.0.1"), port);
 
 	wait_for_network_interaction();
+	
+	auto receiver = listener.accept();
 
-	auto receiver = socket.accept();
 	CHECK(receiver.is_valid());
+}
+
+TEST_CASE("free port on destruction", "[raw_socket]") {
+
+	uint16_t port = 5556;
+	auto listener = RawSocket::new_socket(port);
+	listener.listen(5);
+	
+	uint16_t sender_port = 5555;
+	{
+		auto sender = RawSocket::new_socket(sender_port);
+		sender.connect(std::string("127.0.0.1"), port);
+
+		wait_for_network_interaction();
+		auto receiver = listener.accept();
+
+		CHECK(receiver.is_valid());
+	}
+	{
+		auto sender = RawSocket::new_socket(sender_port);
+		sender.connect(std::string("127.0.0.1"), port);
+
+		wait_for_network_interaction();
+		auto receiver = listener.accept();
+
+		CHECK(receiver.is_valid());
+	}
 }
 
 TEST_CASE("write and receive", "[raw_socket]") {
