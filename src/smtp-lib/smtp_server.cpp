@@ -24,19 +24,19 @@ void SMTPServer::stop() {
 void SMTPServer::accept_connections() {
     while (!m_stop_requested) {
 		auto connection = accept_connection();
-		if (connection->is_valid())
+		if (connection.is_valid())
 		{
-			add_new_mail_receiver(std::move(connection));
+			add_new_mail_receiver_for(std::move(connection));
 			start_worker_for_last_mail_receiver();
 		}
     }
 }
 
-std::unique_ptr<Connection> SMTPServer::accept_connection() {
-	return m_socket_listener.accept_connection();
+Connection SMTPServer::accept_connection() {
+	return Connection(m_socket_listener.accept_connection());
 }
 
-void SMTPServer::add_new_mail_receiver(std::unique_ptr<Connection> connection) {
+void SMTPServer::add_new_mail_receiver_for(Connection connection) {
 	m_mail_receivers.emplace_back(std::move(connection));
 }
 

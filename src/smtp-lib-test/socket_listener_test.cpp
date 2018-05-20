@@ -11,7 +11,7 @@ TEST_CASE("accept with no listener", "[socket_listener]") {
 
 	auto connection = socket.accept_connection();
 
-	CHECK_FALSE(connection->is_valid());
+	CHECK_FALSE(connection.is_valid());
 }
 
 TEST_CASE("accept listeners", "[socket_listener]") {
@@ -39,9 +39,9 @@ TEST_CASE("accept listeners", "[socket_listener]") {
 	auto connection_3 = socket.accept_connection();
 	auto connection_4 = socket.accept_connection();
 
-	CHECK(connection_1->is_valid());
-	CHECK(connection_2->is_valid());
-	CHECK(connection_3->is_valid());
+	CHECK(connection_1.is_valid());
+	CHECK(connection_2.is_valid());
+	CHECK(connection_3.is_valid());
 
-	CHECK_FALSE(connection_4->is_valid());
+	CHECK_FALSE(connection_4.is_valid());
 }

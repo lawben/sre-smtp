@@ -23,14 +23,14 @@ TEST_CASE("bidirectional communicaton", "[connection]") {
 
 		client.write(to_send);
 		wait_for_network_interaction();
-		auto bytes = connection->read();
+		auto bytes = connection.read();
 
 		CHECK(to_send == std::string(bytes.begin(), bytes.end()));
 	}
 	{
 		std::string to_respond = "250 OK";
 
-		connection->write(to_respond);
+		connection.write(to_respond);
 		wait_for_network_interaction();
 		auto bytes = client.read(1024);
 

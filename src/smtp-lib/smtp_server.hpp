@@ -16,9 +16,9 @@ class SMTPServer{
 
   private:
     void accept_connections();
-	std::unique_ptr<Connection> accept_connection();
+	Connection accept_connection();
 
-	void add_new_mail_receiver(std::unique_ptr<Connection> connection);
+	void add_new_mail_receiver_for(Connection connection);
 	void start_worker_for_last_mail_receiver();
 
 	void stop_mail_receivers();

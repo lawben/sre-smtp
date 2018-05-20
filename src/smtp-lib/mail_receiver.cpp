@@ -4,7 +4,7 @@
 
 #include "mail_parser.hpp"
 
-MailReceiver::MailReceiver(std::unique_ptr<Connection> connection) 
+MailReceiver::MailReceiver(Connection connection) 
 	: m_connection(std::move(connection)),
 	m_stop_requested(false){}
 
@@ -13,7 +13,7 @@ void MailReceiver::run() {
 
     while (NoStopNeeded()) {
 		std::string response = "";
-		const auto bytes = m_connection->read();
+		const auto bytes = m_connection.read();
 
         ParserRequest request{bytes};
         try {
@@ -51,7 +51,7 @@ std::string MailReceiver::handle_command(const SMTPCommand& command) {
 }
 
 void MailReceiver::send_response(const std::string& msg) {
-	m_connection->write(msg);
+	m_connection.write(msg);
 }
 
 void MailReceiver::stop() {

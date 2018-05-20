@@ -37,12 +37,12 @@ TEST_CASE("Stop server while client is connected", "[smtp_server]") {
 	wait_for_network_interaction();
 
 	client.connect(server_address, server_port);
-	auto connection = std::make_unique<Connection>(std::move(client));
+	auto connection = Connection(std::move(client));
 
 	wait_for_network_interaction();
 
 	CHECK(server.is_running());
-	CHECK(connection->is_valid());
+	CHECK(connection.is_valid());
 	CHECK(check_return_code(connection, "220"));
 
 	server.stop();
