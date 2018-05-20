@@ -8,4 +8,6 @@ void Connection::write(const std::vector<char>& out_bytes) { m_raw_socket.write(
 
 void Connection::write(const std::string& message) { m_raw_socket.write(Bytes(message.begin(), message.end())); }
 
-bool Connection::is_valid() { return get_socket()->is_valid(); }
+bool Connection::is_valid() { return m_raw_socket.is_valid(); }
+
+void Connection::close() { 	m_raw_socket.close(); }

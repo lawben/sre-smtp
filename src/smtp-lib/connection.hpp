@@ -13,8 +13,7 @@ class Connection {
     void write(const std::string& message);
 
 	bool is_valid();
-
-    RawSocket* get_socket() { return &m_raw_socket; };
+	void close();
 
   private:
     RawSocket m_raw_socket;
