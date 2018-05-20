@@ -43,7 +43,7 @@ TEST_CASE("close socket", "[raw_socket]") {
 
 TEST_CASE("accept with no listender", "[raw_socket]") {
 
-	uint16_t port = 5556;
+	uint16_t port = 5555;
 	auto listener = RawSocket::new_socket(port);
 	
 	CHECK(listener.listen(5));
@@ -54,11 +54,11 @@ TEST_CASE("accept with no listender", "[raw_socket]") {
 
 TEST_CASE("accept listender", "[raw_socket]") {
 
-	uint16_t port = 5556;
+	uint16_t port = 5555;
 	auto listener = RawSocket::new_socket(port);
 	listener.listen(5);
 
-	uint16_t sender_port = 5555;
+	uint16_t sender_port = 5556;
 	auto sender = RawSocket::new_socket(sender_port);
 	sender.connect(std::string("127.0.0.1"), port);
 
@@ -71,11 +71,11 @@ TEST_CASE("accept listender", "[raw_socket]") {
 
 TEST_CASE("reuse port", "[raw_socket]") {
 
-	uint16_t port = 5556;
+	uint16_t port = 5555;
 	auto listener = RawSocket::new_socket(port);
 	listener.listen(5);
 	
-	uint16_t sender_port = 5555;
+	uint16_t sender_port = 5556;
 	{
 		auto sender = RawSocket::new_socket(sender_port);
 		sender.connect(std::string("127.0.0.1"), port);
@@ -98,11 +98,11 @@ TEST_CASE("reuse port", "[raw_socket]") {
 
 TEST_CASE("write and receive", "[raw_socket]") {
 
-	uint16_t port = 5556;
+	uint16_t port = 5555;
 	auto socket = RawSocket::new_socket(port);
 	socket.listen(5);
 
-	uint16_t sender_port = 5555;
+	uint16_t sender_port = 5556;
 	auto sender = RawSocket::new_socket(sender_port);
 	sender.connect(std::string("127.0.0.1"), port);
 
