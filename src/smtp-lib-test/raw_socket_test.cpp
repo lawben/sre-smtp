@@ -58,7 +58,7 @@ TEST_CASE("accept listender", "[raw_socket]") {
 	CHECK(receiver.is_valid());
 }
 
-TEST_CASE("free port on destruction", "[raw_socket]") {
+TEST_CASE("reuse port", "[raw_socket]") {
 
 	uint16_t port = 5556;
 	auto listener = RawSocket::new_socket(port);
