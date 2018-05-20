@@ -45,3 +45,42 @@ TEST_CASE("accept listeners", "[socket_listener]") {
 
 	CHECK_FALSE(connection_4.is_valid());
 }
+
+
+TEST_CASE("free port correctly", "[socket_listener]") {
+
+	uint16_t listener_port = 5555;
+	std::string listener_address = "127.0.0.1";
+	SocketListener listener(listener_port);
+
+	uint16_t client_port = 5556;
+	std::string to_send = "220";
+	{
+		auto client = RawSocket::new_socket(client_port);
+		client.connect(listener_address, listener_port);
+
+		wait_for_network_interaction();
+
+		auto server_connection = listener.accept_connection();
+
+		server_connection.write(to_send);
+
+		wait_for_network_interaction();
+
+		CHECK(check_return_code(client, to_send));
+	}
+	{
+		auto client = RawSocket::new_socket(client_port);
+		client.connect(listener_address, listener_port);
+
+		wait_for_network_interaction();
+
+		auto server_connection = listener.accept_connection();
+
+		server_connection.write(to_send);
+
+		wait_for_network_interaction();
+
+		CHECK(check_return_code(client, to_send));
+	}
+}
