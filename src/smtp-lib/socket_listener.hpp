@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <vector>
 
+#include <memory>
+
 #include "connection.hpp"
 #include "mail_receiver.hpp"
 

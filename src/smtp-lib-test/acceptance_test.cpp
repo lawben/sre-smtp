@@ -15,7 +15,7 @@ TEST_CASE("send valid mails", "[acceptance_test]") {
     uint16_t client_port = 5556;
 	auto client = RawSocket::new_socket(client_port);
 	client.connect(server_address, server_port);
-    auto connection = std::make_unique<Connection>(std::make_unique<RawSocket>(std::move(client)));
+    auto connection = std::make_unique<Connection>(std::move(client));
 
 	wait_for_network_interaction();
 

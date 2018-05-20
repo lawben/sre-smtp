@@ -37,7 +37,7 @@ TEST_CASE("Stop server while client is connected", "[smtp_server]") {
 	wait_for_network_interaction();
 
 	client.connect(server_address, server_port);
-	auto connection = std::make_unique<Connection>(std::make_unique<RawSocket>(std::move(client)));
+	auto connection = std::make_unique<Connection>(std::move(client));
 
 	wait_for_network_interaction();
 
