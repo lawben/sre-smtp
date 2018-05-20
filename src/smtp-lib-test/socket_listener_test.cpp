@@ -55,32 +55,39 @@ TEST_CASE("free port correctly", "[socket_listener]") {
 
 	uint16_t client_port = 5556;
 	std::string to_send = "220";
+	std::vector<Connection> server_connections;
+
 	{
 		auto client = RawSocket::new_socket(client_port);
 		client.connect(listener_address, listener_port);
 
 		wait_for_network_interaction();
 
-		auto server_connection = listener.accept_connection();
-
-		server_connection.write(to_send);
+		server_connections.push_back(std::move(listener.accept_connection()));
+		server_connections.back().write(to_send);
 
 		wait_for_network_interaction();
 
 		CHECK(check_return_code(client, to_send));
+
+		server_connections.back().close(); // close client befor client, do lead to leave the clients port unfreed
+		client.close();
 	}
+	wait_for_network_interaction();
 	{
 		auto client = RawSocket::new_socket(client_port);
 		client.connect(listener_address, listener_port);
 
 		wait_for_network_interaction();
 
-		auto server_connection = listener.accept_connection();
-
-		server_connection.write(to_send);
+		server_connections.push_back(std::move(listener.accept_connection()));
+		server_connections.back().write(to_send);
 
 		wait_for_network_interaction();
 
 		CHECK(check_return_code(client, to_send));
+
+		server_connections.back().close(); // close client befor client, do lead to leave the clients port unfreed
+		client.close();
 	}
 }
