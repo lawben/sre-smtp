@@ -2,6 +2,8 @@
 
 #include <atomic>
 
+#include <memory>
+
 #include "connection.hpp"
 #include "mail_parser.hpp"
 
