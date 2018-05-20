@@ -11,7 +11,6 @@ class MailReceiver {
 	MailReceiver(MailReceiver &&) = default;
 	MailReceiver& operator=(MailReceiver&&) = default;
 
-    // This is the main SMTP loop. This assumes a valid connection with read/write. It will run in a separate thread.
     void run();
 
 	void stop();
