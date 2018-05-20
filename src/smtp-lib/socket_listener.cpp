@@ -1,12 +1,8 @@
 #include "socket_listener.hpp"
 
 #include <memory>
-#include <thread>
-#include <chrono>
 
 #include "connection.hpp"
-#include "mail_receiver.hpp"
-
 
 SocketListener::SocketListener(const uint16_t port) : m_port(port), m_raw_socket(RawSocket::new_socket()) {
     m_raw_socket.bind(m_port);
