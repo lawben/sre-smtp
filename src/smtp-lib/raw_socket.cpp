@@ -67,13 +67,7 @@ RawSocket::RawSocket(SocketType id) : m_id(id) {
 }
 
 RawSocket::~RawSocket() {
-    if (is_valid()) {
-#ifdef WIN32
-        closesocket(m_id);
-#else
-        close(m_id);
-#endif
-    }
+	close();
 }
 
 bool RawSocket::is_valid() const { return m_id != INVALID_SOCKET_ID; }
@@ -192,6 +186,14 @@ bool RawSocket::write(const std::string& data) {
         throw std::runtime_error(get_error_string(error_id));
     }
     return true;
+}
+
+void RawSocket::close() {
+#ifdef WIN32
+	closesocket(m_id);
+#else
+	close(m_id);
+#endif
 }
 
 int RawSocket::get_error_id() {

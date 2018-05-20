@@ -33,6 +33,7 @@ class RawSocket{
     Bytes read(size_t size);
     bool write(const Bytes& data);
     bool write(const std::string& data);
+	void close();
 
   private:
     explicit RawSocket(SocketType id);

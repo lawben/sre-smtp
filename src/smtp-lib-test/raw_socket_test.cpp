@@ -30,6 +30,17 @@ TEST_CASE("open with bind socket", "[raw_socket]") {
 	CHECK_THROWS(RawSocket::new_socket(port));
 }
 
+TEST_CASE("close socket", "[raw_socket]") {
+
+	uint16_t port = 5555;
+	auto socket = RawSocket::new_socket(port);
+	CHECK(socket.is_valid());
+	socket.close();
+
+	auto next_socket = RawSocket::new_socket(port);
+	CHECK(socket.is_valid());
+}
+
 TEST_CASE("accept with no listender", "[raw_socket]") {
 
 	uint16_t port = 5556;
