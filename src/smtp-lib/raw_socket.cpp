@@ -94,7 +94,7 @@ bool RawSocket::bind(int port) {
             return false;
         }
 		throw std::runtime_error("Bind socket failed!");
-        // throw std::runtime_error(get_error_string(error_id)); get error string is produces a sigseg.
+        // throw std::runtime_error(get_error_string(error_id)); TODO: get error string is produces a sigseg.
     }
     return true;
 }
