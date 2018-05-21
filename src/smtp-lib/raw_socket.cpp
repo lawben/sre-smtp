@@ -93,7 +93,8 @@ bool RawSocket::bind(int port) {
         if (is_temporary_error(error_id)) {
             return false;
         }
-        throw std::runtime_error(get_error_string(error_id));
+		throw std::runtime_error("Bind socket failed!");
+        // throw std::runtime_error(get_error_string(error_id)); get error string is produces a sigseg.
     }
     return true;
 }
