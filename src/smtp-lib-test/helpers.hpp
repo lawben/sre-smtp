@@ -7,7 +7,7 @@
 
 #include "smtp-lib/raw_socket.hpp"
 
-void inline wait_for_network_interaction() { std::this_thread::sleep_for(std::chrono::milliseconds(100)); };
+void inline wait_for_network_interaction() { std::this_thread::sleep_for(std::chrono::milliseconds(100)); }
 
 bool inline check_return_code(Connection& connection, std::string prefix) {
     wait_for_network_interaction();
