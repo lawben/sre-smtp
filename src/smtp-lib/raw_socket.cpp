@@ -50,13 +50,14 @@ void RawSocket::clean_up() {
     WSACleanup();
     s_initialized = false;
 #endif
-};
+}
 
 RawSocket RawSocket::new_socket(uint16_t port) {
     auto socket = new_socket();
     socket.bind(port);
     return socket;
 }
+
 RawSocket::RawSocket(SocketType id) : m_id(id) {
     if (is_valid()) {
 #ifdef WIN32
