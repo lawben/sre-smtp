@@ -7,6 +7,7 @@ class SocketListener {
     explicit SocketListener(uint16_t port);
 
     Connection accept_connection();
+	void close();
 
   private:
     const int16_t m_port;
