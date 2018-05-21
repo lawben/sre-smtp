@@ -1,6 +1,5 @@
 #pragma once
 
-#include <atomic>
 #include <thread>
 
 #include "utils.hpp"
@@ -15,7 +14,13 @@ class SMTPServer{
     void stop();
 
   private:
-    void accept_connections();
+    SocketListener m_socket_listener;
+    bool m_is_running;
+    bool m_stop_requested;
+    std::vector<MailReceiver> m_mail_receivers;
+    std::vector<std::thread> m_workers;
+    
+	void accept_connections();
 	Connection accept_connection();
 
 	void add_new_mail_receiver_for(Connection connection);
@@ -24,10 +29,4 @@ class SMTPServer{
 	void stop_mail_receivers();
 	void request_stop_on_mail_receivers();
 	void join_worker_threads();
-
-	SocketListener m_socket_listener;
-    bool m_is_running;
-    std::atomic<bool> m_stop_requested;
-	std::vector<MailReceiver> m_mail_receivers;
-	std::vector<std::thread> m_workers;
 };
