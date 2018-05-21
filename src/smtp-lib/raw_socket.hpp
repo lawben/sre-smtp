@@ -17,6 +17,7 @@ class RawSocket{
 
     static RawSocket new_socket();
     static RawSocket new_socket(uint16_t port);
+	static void clean_up();
 
     ~RawSocket();
 	RawSocket(const RawSocket&) = delete;

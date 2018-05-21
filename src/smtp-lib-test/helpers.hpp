@@ -26,3 +26,7 @@ bool inline check_return_code(RawSocket& socket, std::string prefix) {
 	std::string result(bytes.begin(), bytes.end());
 	return result.find(prefix) == 0;
 }
+
+void inline clean_up_sockets() {
+	RawSocket::clean_up();
+}

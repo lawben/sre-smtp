@@ -45,6 +45,14 @@ RawSocket RawSocket::new_socket() {
     return RawSocket{descriptor_id};
 }
 
+
+void RawSocket::clean_up() {
+#ifdef WIN32
+	WSACleanup();
+	s_initialized = false;
+#endif
+};
+
 RawSocket RawSocket::new_socket(uint16_t port) {
 	auto socket = new_socket();
 	socket.bind(port);
@@ -190,6 +198,7 @@ bool RawSocket::write(const std::string& data) {
 
 void RawSocket::close() {
 #ifdef WIN32
+	shutdown(m_id, SD_BOTH);
 	closesocket(m_id);
 #else
 	close(m_id);
