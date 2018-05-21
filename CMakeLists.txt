@@ -20,8 +20,7 @@ add_library(
         src/smtp-lib/mail_receiver.hpp
         src/smtp-lib/smtp_server.cpp
         src/smtp-lib/smtp_server.hpp
-        src/smtp-lib/smtp_utils.hpp
-        src/smtp-lib/utils.hpp)
+        src/smtp-lib/smtp_utils.hpp)
 
 set_target_properties(smtp-lib PROPERTIES LINKER_LANGUAGE CXX)
 set_property(TARGET smtp-lib PROPERTY CXX_STANDARD 17)
