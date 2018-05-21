@@ -17,37 +17,18 @@ void MailReceiver::run() {
 
         ParserRequest request{bytes};
         try {
-            const auto smtp_commands = m_parser.accept(request);
-            for (auto command : smtp_commands) {
-				response = handle_command(command);
+            const auto smtp_commands = m_parser.accept(request, m_state_machine.current_simplified_state());
+            for (const auto& command : smtp_commands) {
+                const auto response = m_state_machine.accept(command);
+                send_response(std::to_string(response.code) + " " + response.string + NEWLINE_TOKEN);
             }
         } catch (const std::runtime_error& e) {
-			response = "500 : ";
-			response += e.what();
+            // TODO: Do something meaningful
+            send_response(e.what());
         }
 		if(response != "")
 			send_response(response);
     }
-}
-
-std::string MailReceiver::handle_command(const SMTPCommand& command) {
-
-	switch (command.type) {
-	case SMTPCommandType::HELO:
-		return "250 ---";
-	case SMTPCommandType::MAIL:
-		return "250 OK";
-	case SMTPCommandType::RCPT:
-		return "250 OK";
-	case SMTPCommandType::DATA:
-		return "354";
-	case SMTPCommandType::DATA_BODY:
-		return "250 OK";
-	case SMTPCommandType::QUIT:
-		return "221";
-	default:
-		return "500 Bad Syntax";
-	}
 }
 
 void MailReceiver::send_response(const std::string& msg) {
@@ -61,3 +42,4 @@ void MailReceiver::stop() {
 bool MailReceiver::NoStopNeeded() {
 	return !m_error_occurred && !m_stop_requested;
 }
+

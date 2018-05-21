@@ -126,7 +126,11 @@ RawSocket RawSocket::accept() {
 void RawSocket::connect(std::string& addr, int port) {
     sockaddr_in clientService;
     clientService.sin_family = AF_INET;
+#ifdef WIN32
     inet_pton(AF_INET, addr.c_str(), &clientService.sin_addr.s_addr);
+#else
+    clientService.sin_addr.s_addr = inet_addr(addr.c_str());
+#endif
     clientService.sin_port = htons(static_cast<u_short>(port));
 
     auto error = ::connect(m_id, (sockaddr*)&clientService, sizeof(clientService));

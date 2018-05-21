@@ -2,6 +2,7 @@
 
 #include "connection.hpp"
 #include "mail_parser.hpp"
+#include "mail_state_machine.hpp"
 
 class MailReceiver {
   public:
@@ -18,9 +19,9 @@ class MailReceiver {
 	bool m_stop_requested = false;
     bool m_error_occurred = false;
     MailParser m_parser;
+    MailStateMachine m_state_machine;
 
-	std::string handle_command(const SMTPCommand& commnad);
-	void send_response(const std::string& msg);
+    void send_response(const std::string& msg);
 
 	bool NoStopNeeded();
 };
