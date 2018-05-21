@@ -6,79 +6,75 @@
 
 #include "smtp-lib-test/helpers.hpp"
 
-TEST_CASE("bidirectional communicaton", "[connection]") {
+TEST_CASE("connection test", "[unit][connection]") {
+    uint16_t port = 5555;
+    SocketListener listener(port);
+    std::string host("127.0.0.1");
 
-	uint16_t port = 5555;
-	SocketListener listener(port);
+    uint16_t client_port = 5556;
 
-	uint16_t client_port = 5556;
-	auto client = RawSocket::new_socket(client_port);
+    std::string to_send = "Want to communicate?";
+    std::string to_respond = "250 OK";
 
-	client.connect(std::string("127.0.0.1"), port);
-	
-	wait_for_network_interaction();
+    SECTION("bidirectional communicaton") {
+        auto client = RawSocket::new_socket(client_port);
 
-	auto connection = listener.accept_connection();
+        client.connect(host, port);
 
-	{
-		std::string to_send = "Want to communicate?";
+        wait_for_network_interaction();
 
-		client.write(to_send);
-		wait_for_network_interaction();
-		auto bytes = connection.read();
+        auto connection = listener.accept_connection();
 
-		CHECK(to_send == std::string(bytes.begin(), bytes.end()));
-	}
-	{
-		std::string to_respond = "250 OK";
+        {
+            client.write(to_send);
+            wait_for_network_interaction();
+            auto bytes = connection.read();
 
-		connection.write(to_respond);
-		wait_for_network_interaction();
-		auto bytes = client.read(1024);
+            CHECK(to_send == std::string(bytes.begin(), bytes.end()));
+        }
+        {
+            connection.write(to_respond);
+            wait_for_network_interaction();
+            auto bytes = client.read(1024);
 
-		CHECK(to_respond == std::string(bytes.begin(), bytes.end()));
-	}
-}
+            CHECK(to_respond == std::string(bytes.begin(), bytes.end()));
+        }
+    }
 
-TEST_CASE("free resources", "[connection]") {
+    SECTION("free resources", "[unit][connection]") {
+        std::vector<Connection> connections;
 
-	uint16_t listener_port = 5555;
-	std::string listener_address = "127.0.0.1";
-	SocketListener listener(listener_port);
+        {
+            auto client = RawSocket::new_socket(client_port);
+            client.connect(host, port);
 
-	uint16_t client_port = 5556;
-	std::string to_send = "Hello Client!";
+            wait_for_network_interaction();
 
-	std::vector<Connection> connections;
+            auto connection = listener.accept_connection();
+            connections.push_back(std::move(connection));
+            connections.back().write(to_send);
+            wait_for_network_interaction();
+            auto bytes = client.read(1024);
 
-	{
-		auto client = RawSocket::new_socket(client_port);
-		client.connect(listener_address, listener_port);
+            CHECK(to_send == std::string(bytes.begin(), bytes.end()));
 
-		wait_for_network_interaction();
+            connections.back().close();
+        }
+        {
+            auto client = RawSocket::new_socket(client_port);
+            client.connect(host, port);
 
-		connections.push_back(std::move(listener.accept_connection()));
-		connections.back().write(to_send);
-		wait_for_network_interaction();
-		auto bytes = client.read(1024);
+            wait_for_network_interaction();
 
-		CHECK(to_send == std::string(bytes.begin(), bytes.end()));
+            auto connection = listener.accept_connection();
+            connections.push_back(std::move(connection));
+            connections.back().write(to_send);
+            wait_for_network_interaction();
+            auto bytes = client.read(1024);
 
-		connections.back().close();
-	}
-	{
-		auto client = RawSocket::new_socket(client_port);
-		client.connect(listener_address, listener_port);
+            CHECK(to_send == std::string(bytes.begin(), bytes.end()));
 
-		wait_for_network_interaction();
-
-		connections.push_back(std::move(listener.accept_connection()));
-		connections.back().write(to_send);
-		wait_for_network_interaction();
-		auto bytes = client.read(1024);
-
-		CHECK(to_send == std::string(bytes.begin(), bytes.end()));
-
-		connections.back().close();
-	}
+            connections.back().close();
+        }
+    }
 }
