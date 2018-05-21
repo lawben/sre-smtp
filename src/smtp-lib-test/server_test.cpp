@@ -1,53 +1,42 @@
 #include "catch/catch.hpp"
 
-#include "smtp-lib/smtp_server.hpp"
 #include "smtp-lib/raw_socket.hpp"
-#include "smtp-lib/connection.hpp"
+#include "smtp-lib/smtp_server.hpp"
 
 #include "smtp-lib-test/helpers.hpp"
 
-TEST_CASE("run server", "[smtp_server]") {
-    
-	SMTPServer server(8080);
-
-    CHECK_FALSE(server.is_running());
-    
-	auto server_thread = std::thread(&SMTPServer::run, &server);
-	std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	
-	CHECK(server.is_running());
-
-    server.stop();
-    
-	CHECK_FALSE(server.is_running());
-
-	server_thread.join();
-}
-
-TEST_CASE("Stop server while client is connected", "[smtp_server]") {
+TEST_CASE("use smtp server", "[unit][server]") {
 
 	uint16_t server_port = 5555;
 	std::string server_address = "127.0.0.1";
+	uint16_t client_1_port = 5556;
+	uint16_t client_2_port = 5557;
 	SMTPServer server(server_port);
 	auto server_thread = std::thread(&SMTPServer::run, &server);
 
-	uint16_t client_port = 5556;
-	auto client = RawSocket::new_socket(client_port);
+	SECTION("welcome clients") {
+		auto client_1 = RawSocket::new_socket(client_1_port);
+		auto client_2 = RawSocket::new_socket(client_2_port);
 
-	wait_for_network_interaction();
+		wait_for_network_interaction();
 
-	client.connect(server_address, server_port);
-	auto connection = Connection(std::move(client));
+		client_1.connect(server_address, server_port);
+		client_2.connect(server_address, server_port);
 
-	wait_for_network_interaction();
+		wait_for_network_interaction();
 
-	CHECK(server.is_running());
-	CHECK(connection.is_valid());
-	CHECK(check_return_code(connection, "220"));
+		CHECK(server.is_running());
+
+		CHECK(client_1.is_valid());
+		CHECK(client_2.is_valid());
+
+		CHECK(check_return_code(client_1, "220"));
+		CHECK(check_return_code(client_2, "220"));
+	}
 
 	server.stop();
-
-	CHECK_FALSE(server.is_running());
+	wait_for_network_interaction();
 
 	server_thread.join();
+	clean_up_sockets();
 }

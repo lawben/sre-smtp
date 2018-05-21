@@ -1,18 +1,17 @@
-#include "catch/catch.hpp"
+ #include "catch/catch.hpp"
 
-#include "smtp-lib/connection.hpp"
 #include "smtp-lib/raw_socket.hpp"
 #include "smtp-lib/smtp_server.hpp"
 
 #include "smtp-lib-test/helpers.hpp"
 
-TEST_CASE("send valid mail", "[acceptance_test]") {
+TEST_CASE("acceptance test", "[acceptance][server]") {
     uint16_t server_port = 5555;
 	std::string server_address = "127.0.0.1";
     SMTPServer server(server_port);
 	auto server_thread = std::thread(&SMTPServer::run, &server);
 
-	{
+	SECTION("handle valid mail") {
 		uint16_t client_port = 5556;
 		auto client = RawSocket::new_socket(client_port);
 		client.connect(server_address, server_port);
@@ -51,6 +50,6 @@ TEST_CASE("send valid mail", "[acceptance_test]") {
 	
 	server.stop();
 	server_thread.join();
-}
 
-TEST_CASE("Send invalid mails", "[Message Receiving]") { REQUIRE(false); }
+	clean_up_sockets();
+}
