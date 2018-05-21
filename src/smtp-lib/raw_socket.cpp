@@ -206,7 +206,7 @@ void RawSocket::close() {
 	shutdown(m_id, SD_BOTH);
 	closesocket(m_id);
 #else
-	close(m_id);
+	::close(m_id);
 #endif
 }
 
