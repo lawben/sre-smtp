@@ -4,7 +4,6 @@
 #include <vector>
 #include "raw_socket.hpp"
 #include "smtp_utils.hpp"
-#include "utils.hpp"
 
 struct ParserRequest {
     std::string message;

@@ -2,7 +2,6 @@
 
 #include <thread>
 
-#include "utils.hpp"
 #include "mail_receiver.hpp"
 #include "socket_listener.hpp"
 
