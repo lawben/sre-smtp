@@ -45,18 +45,17 @@ RawSocket RawSocket::new_socket() {
     return RawSocket{descriptor_id};
 }
 
-
 void RawSocket::clean_up() {
 #ifdef WIN32
-	WSACleanup();
-	s_initialized = false;
+    WSACleanup();
+    s_initialized = false;
 #endif
 };
 
 RawSocket RawSocket::new_socket(uint16_t port) {
-	auto socket = new_socket();
-	socket.bind(port);
-	return socket;
+    auto socket = new_socket();
+    socket.bind(port);
+    return socket;
 }
 RawSocket::RawSocket(SocketType id) : m_id(id) {
     if (is_valid()) {
@@ -74,9 +73,7 @@ RawSocket::RawSocket(SocketType id) : m_id(id) {
     }
 }
 
-RawSocket::~RawSocket() {
-	close();
-}
+RawSocket::~RawSocket() { close(); }
 
 bool RawSocket::is_valid() const { return m_id != INVALID_SOCKET_ID; }
 
@@ -93,7 +90,7 @@ bool RawSocket::bind(int port) {
         if (is_temporary_error(error_id)) {
             return false;
         }
-		throw std::runtime_error("Bind socket failed!");
+        throw std::runtime_error("Bind socket failed!");
         // throw std::runtime_error(get_error_string(error_id)); TODO: get error string is produces a sigseg.
     }
     return true;
@@ -138,7 +135,7 @@ void RawSocket::connect(std::string& addr, int port) {
     if (error == ERROR_CONSTANT) {
         auto error_id = get_error_id();
         if (!is_temporary_error(error_id)) {
-			throw std::runtime_error(get_error_string(error_id));
+            throw std::runtime_error(get_error_string(error_id));
         }
     }
 }
@@ -155,10 +152,9 @@ std::vector<char> RawSocket::read(size_t size) {
         auto error_id = get_error_id();
         if (is_temporary_error(error_id)) {
             get = 0;
-		}
-		else {
-			throw std::runtime_error(get_error_string(error_id));
-		}
+        } else {
+            throw std::runtime_error(get_error_string(error_id));
+        }
     }
 
     buffer.resize(get);
@@ -203,10 +199,10 @@ bool RawSocket::write(const std::string& data) {
 
 void RawSocket::close() {
 #ifdef WIN32
-	shutdown(m_id, SD_BOTH);
-	closesocket(m_id);
+    shutdown(m_id, SD_BOTH);
+    closesocket(m_id);
 #else
-	::close(m_id);
+    ::close(m_id);
 #endif
 }
 
@@ -218,8 +214,7 @@ int RawSocket::get_error_id() {
 #endif
 }
 
-bool RawSocket::is_temporary_error(int error_id)
-{
+bool RawSocket::is_temporary_error(int error_id) {
 #ifdef WIN32
     return error_id == WSAEWOULDBLOCK;
 #else

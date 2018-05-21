@@ -4,16 +4,14 @@
 
 #include "mail_parser.hpp"
 
-MailReceiver::MailReceiver(Connection connection) 
-	: m_connection(std::move(connection)),
-	m_stop_requested(false){}
+MailReceiver::MailReceiver(Connection connection) : m_connection(std::move(connection)), m_stop_requested(false) {}
 
 void MailReceiver::run() {
     send_response("220 sre-smtp server\r\n");
 
     while (NoStopNeeded()) {
-		std::string response = "";
-		const auto bytes = m_connection.read();
+        std::string response = "";
+        const auto bytes = m_connection.read();
 
         ParserRequest request{bytes};
         try {
@@ -26,20 +24,12 @@ void MailReceiver::run() {
             // TODO: Do something meaningful
             send_response(e.what());
         }
-		if(response != "")
-			send_response(response);
+        if (response != "") send_response(response);
     }
 }
 
-void MailReceiver::send_response(const std::string& msg) {
-	m_connection.write(msg);
-}
+void MailReceiver::send_response(const std::string& msg) { m_connection.write(msg); }
 
-void MailReceiver::stop() {
-	m_stop_requested = true;
-}
+void MailReceiver::stop() { m_stop_requested = true; }
 
-bool MailReceiver::NoStopNeeded() {
-	return !m_error_occurred && !m_stop_requested;
-}
-
+bool MailReceiver::NoStopNeeded() { return !m_error_occurred && !m_stop_requested; }

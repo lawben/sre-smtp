@@ -39,11 +39,11 @@ TEST_CASE("test DATA_BEGIN", "[unit][mail_parser]") {
     CHECK(responses[0].data == "");
 }
 
-
 TEST_CASE("test multiple commands", "[unit][mail_parser]") {
     MailParser parser;
     std::vector<SMTPCommand> responses;
-    responses = parser.accept(ParserRequest("HELO my-sender\r\nMAIL FROM:my-sender\r\nRCPT TO:my-rec\r\n"), SimplifiedSMTPState::ENVELOPE);
+    responses = parser.accept(ParserRequest("HELO my-sender\r\nMAIL FROM:my-sender\r\nRCPT TO:my-rec\r\n"),
+                              SimplifiedSMTPState::ENVELOPE);
     REQUIRE(responses.size() == 3);
     CHECK(responses[0].type == SMTPCommandType::HELO);
     CHECK(responses[0].data == "my-sender");
@@ -56,7 +56,8 @@ TEST_CASE("test multiple commands", "[unit][mail_parser]") {
 TEST_CASE("test DATA body", "[unit][mail_parser]") {
     MailParser parser;
     std::vector<SMTPCommand> responses;
-    responses = parser.accept(ParserRequest("DATA\r\nline-a\r\nline-b\r\nline-c\r\n.\r\n"), SimplifiedSMTPState::CONTENT);
+    responses =
+        parser.accept(ParserRequest("DATA\r\nline-a\r\nline-b\r\nline-c\r\n.\r\n"), SimplifiedSMTPState::CONTENT);
     REQUIRE(responses.size() == 2);
     CHECK(responses[0].type == SMTPCommandType::DATA_BEGIN);
     CHECK(responses[1].type == SMTPCommandType::DATA);

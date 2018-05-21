@@ -12,8 +12,8 @@ class Connection {
     void write(const std::vector<char>& bytes);
     void write(const std::string& message);
 
-	bool is_valid();
-	void close();
+    bool is_valid();
+    void close();
 
   private:
     RawSocket m_raw_socket;

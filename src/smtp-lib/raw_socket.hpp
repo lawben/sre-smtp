@@ -5,9 +5,8 @@
 
 using Bytes = std::vector<char>;
 
-class RawSocket{
+class RawSocket {
   public:
-
 #ifdef WIN32
     using SocketType = size_t;
 #else
@@ -16,11 +15,11 @@ class RawSocket{
 
     static RawSocket new_socket();
     static RawSocket new_socket(uint16_t port);
-	static void clean_up();
+    static void clean_up();
 
     ~RawSocket();
-	RawSocket(const RawSocket&) = delete;
-	RawSocket& operator=(const RawSocket&) = delete;
+    RawSocket(const RawSocket&) = delete;
+    RawSocket& operator=(const RawSocket&) = delete;
     RawSocket(RawSocket&& other) noexcept;
     RawSocket& operator=(RawSocket&& other) noexcept;
 
@@ -33,7 +32,7 @@ class RawSocket{
     Bytes read(size_t size);
     bool write(const Bytes& data);
     bool write(const std::string& data);
-	void close();
+    void close();
 
   private:
     explicit RawSocket(SocketType id);
