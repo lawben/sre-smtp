@@ -38,5 +38,4 @@ TEST_CASE("use smtp server", "[unit][server]") {
 	wait_for_network_interaction();
 
 	server_thread.join();
-	clean_up_sockets();
 }

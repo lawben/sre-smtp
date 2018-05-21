@@ -50,6 +50,4 @@ TEST_CASE("acceptance test", "[acceptance][server]") {
 	
 	server.stop();
 	server_thread.join();
-
-	clean_up_sockets();
 }

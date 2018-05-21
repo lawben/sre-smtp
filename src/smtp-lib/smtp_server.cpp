@@ -12,6 +12,8 @@ void SMTPServer::run() {
 	accept_connections();
 
 	stop_mail_receivers();
+    
+	RawSocket::clean_up();
 }
 
 bool SMTPServer::is_running() { return m_is_running; }
