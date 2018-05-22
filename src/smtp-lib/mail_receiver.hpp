@@ -23,5 +23,5 @@ class MailReceiver {
 
     void send_response(const std::string& msg);
 
-    bool NoStopNeeded();
+    bool no_stop_needed();
 };
