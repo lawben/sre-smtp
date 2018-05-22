@@ -12,7 +12,7 @@ static const std::map<std::string, SMTPCommandType> string_to_token{{"helo ", SM
                                                                     {"rcpt to:", SMTPCommandType::RCPT},
                                                                     {"data", SMTPCommandType::DATA_BEGIN},
                                                                     {"quit", SMTPCommandType::QUIT}};
-}  // namespace
+} 
 
 std::vector<SMTPCommand> MailParser::accept(const ParserRequest& request, SimplifiedSMTPState state) {
     m_buffer.append(request.message);
@@ -53,29 +53,27 @@ SMTPCommand MailParser::parse_buffer(SimplifiedSMTPState state) {
 }
 
 SMTPCommand MailParser::parse_envelope_buffer() {
-    std::pair<std::string, SMTPCommandType> token{"", SMTPCommandType::INVALID};
+    SMTPCommand command;
+    command.type = SMTPCommandType::INVALID;
+	command.data = "";
 
-    // This only works as long as no token is a prefix of another token
-    // Check if the string representation of one token is present in the buffer
     for (const auto& conversion : string_to_token) {
-        // Only consider this token if we both found it and its at the start
-        // This prevents cases like: MAIL FROM:<HELO@test.com>
-        std::string command = m_buffer.substr(0, conversion.first.size());
-        std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+        std::string prefix = m_buffer.substr(0, conversion.first.size());
+        std::transform(prefix.begin(), prefix.end(), prefix.begin(), ::tolower);
 
-		if (conversion.first == command)
+		if (conversion.first == prefix)
 		{
-            token = conversion;
+            command.type = conversion.second;
+            command.data = conversion.first;
 			break;
 		}
     }
 
-    // TODO: check if the data we carry is data we want / if its valid
     const auto end = m_buffer.find(NEWLINE_TOKEN);
-    const auto data = m_buffer.substr(token.first.length(), end - token.first.length());
+    const auto data = m_buffer.substr(command.data.length(), end - command.data.length());
     m_buffer.erase(0, end + NEWLINE_TOKEN.length());
-
-    return {token.second, data};
+    command.data = data;
+    return command;
 }
 
 SMTPCommand MailParser::parse_content_buffer() {
