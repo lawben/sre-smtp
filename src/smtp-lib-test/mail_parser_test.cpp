@@ -26,7 +26,7 @@ TEST_CASE("test RCPT", "[unit][mail_parser]") {
     std::vector<SMTPCommand> responses;
     responses = parser.accept(ParserRequest("RCPT TO:my-rec\r\n"), SimplifiedSMTPState::ENVELOPE);
     REQUIRE(responses.size() == 1);
-    CHECK(responses[0].type == SMTPCommandType::MAIL);
+    CHECK(responses[0].type == SMTPCommandType::RCPT);
     CHECK(responses[0].data == "my-rec");
 }
 
@@ -35,7 +35,7 @@ TEST_CASE("test DATA_BEGIN", "[unit][mail_parser]") {
     std::vector<SMTPCommand> responses;
     responses = parser.accept(ParserRequest("DATA\r\n"), SimplifiedSMTPState::ENVELOPE);
     REQUIRE(responses.size() == 1);
-    CHECK(responses[0].type == SMTPCommandType::MAIL);
+    CHECK(responses[0].type == SMTPCommandType::DATA_BEGIN);
     CHECK(responses[0].data == "");
 }
 
@@ -66,7 +66,10 @@ TEST_CASE("test DATA body", "[unit][mail_parser]") {
 
 TEST_CASE("test invalid message", "[unit][mail_parser]") {
     MailParser parser;
-    REQUIRE_THROWS_AS(parser.accept(ParserRequest("WRONGCMD\r\n"), SimplifiedSMTPState::ENVELOPE), std::runtime_error);
+    std::vector<SMTPCommand> responses;
+    parser.accept(ParserRequest("WRONGCMD\r\n"), SimplifiedSMTPState::ENVELOPE);
+    REQUIRE(responses.size() == 1);
+    CHECK(responses[0].type == SMTPCommandType::INVALID);
 }
 
 TEST_CASE("test incomplete line", "[mail_parser]") {
