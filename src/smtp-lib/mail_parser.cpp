@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cassert>
 #include <map>
 #include <stdexcept>
@@ -6,11 +7,11 @@
 
 namespace {
 static const std::string DATA_END_TOKEN = "\r\n.\r\n";
-static const std::map<std::string, SMTPCommandType> string_to_token{{"HELO ", SMTPCommandType::HELO},
-                                                                    {"MAIL FROM:", SMTPCommandType::MAIL},
-                                                                    {"RCPT TO:", SMTPCommandType::RCPT},
-                                                                    {"DATA", SMTPCommandType::DATA_BEGIN},
-                                                                    {"QUIT", SMTPCommandType::QUIT}};
+static const std::map<std::string, SMTPCommandType> string_to_token{{"helo ", SMTPCommandType::HELO},
+                                                                    {"mail from:", SMTPCommandType::MAIL},
+                                                                    {"rcpt to:", SMTPCommandType::RCPT},
+                                                                    {"data", SMTPCommandType::DATA_BEGIN},
+                                                                    {"quit", SMTPCommandType::QUIT}};
 }  // namespace
 
 std::vector<SMTPCommand> MailParser::accept(const ParserRequest& request, SimplifiedSMTPState state) {
@@ -59,10 +60,14 @@ SMTPCommand MailParser::parse_envelope_buffer() {
     for (const auto& conversion : string_to_token) {
         // Only consider this token if we both found it and its at the start
         // This prevents cases like: MAIL FROM:<HELO@test.com>
-        if (auto token_position = m_buffer.find(conversion.first); token_position == 0) {
+        std::string command = m_buffer.substr(0, conversion.first.size());
+        std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+
+		if (conversion.first == command)
+		{
             token = conversion;
-            break;
-        }
+			break;
+		}
     }
 
     // TODO: check if the data we carry is data we want / if its valid
