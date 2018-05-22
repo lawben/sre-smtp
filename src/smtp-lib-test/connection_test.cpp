@@ -28,14 +28,14 @@ TEST_CASE("connection test", "[unit][connection]") {
         {
             client.write(to_send);
             wait_for_network_interaction();
-            auto bytes = connection.read();
+            const auto bytes = connection.read();
 
             CHECK(to_send == std::string(bytes.begin(), bytes.end()));
         }
         {
             connection.write(to_respond);
             wait_for_network_interaction();
-            auto bytes = client.read(1024);
+            const auto bytes = client.read(1024);
 
             CHECK(to_respond == std::string(bytes.begin(), bytes.end()));
         }
@@ -54,7 +54,7 @@ TEST_CASE("connection test", "[unit][connection]") {
             connections.push_back(std::move(connection));
             connections.back().write(to_send);
             wait_for_network_interaction();
-            auto bytes = client.read(1024);
+            const auto bytes = client.read(1024);
 
             CHECK(to_send == std::string(bytes.begin(), bytes.end()));
 
@@ -70,7 +70,7 @@ TEST_CASE("connection test", "[unit][connection]") {
             connections.push_back(std::move(connection));
             connections.back().write(to_send);
             wait_for_network_interaction();
-            auto bytes = client.read(1024);
+            const auto bytes = client.read(1024);
 
             CHECK(to_send == std::string(bytes.begin(), bytes.end()));
 

@@ -9,7 +9,7 @@ MailReceiver::MailReceiver(Connection connection) : m_connection(std::move(conne
 void MailReceiver::run() {
     send_response("220 sre-smtp server\r\n");
 
-    while (NoStopNeeded()) {
+    while (no_stop_needed()) {
         std::string response = "";
         const auto bytes = m_connection.read();
 
@@ -24,7 +24,7 @@ void MailReceiver::run() {
             // TODO: Do something meaningful
             send_response(e.what());
         }
-        if (response != "") send_response(response);
+        if (!response.empty()) send_response(response);
     }
 }
 
@@ -32,4 +32,4 @@ void MailReceiver::send_response(const std::string& msg) { m_connection.write(ms
 
 void MailReceiver::stop() { m_stop_requested = true; }
 
-bool MailReceiver::NoStopNeeded() { return !m_error_occurred && !m_stop_requested; }
+bool MailReceiver::no_stop_needed() { return !m_error_occurred && !m_stop_requested; }
