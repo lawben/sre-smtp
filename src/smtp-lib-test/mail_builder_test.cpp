@@ -28,11 +28,6 @@ TEST_CASE("build simple mail", "[unit][mail_builder]") {
     CHECK(mail.to[0] == to);
 }
 
-TEST_CASE("use invalide token", "[unit][mail_builder]") {
-    MailBuilder builder;
-    REQUIRE_THROWS_AS(builder.add({SMTPCommandType::DATA_BEGIN, ""}), std::runtime_error);
-}
-
 TEST_CASE("reset mail object", "[unit][mail_builder]") {
     MailBuilder builder;
 

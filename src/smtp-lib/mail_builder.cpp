@@ -23,7 +23,8 @@ void MailBuilder::add(SMTPCommand command) {
             set_data(command.data);
             break;
         }
-        default: { throw std::runtime_error("SMTPCommandType is invalide for MailBuilder."); }
+        default: 
+			break;
     }
 }
 

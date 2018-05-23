@@ -22,23 +22,22 @@ SimplifiedSMTPState MailStateMachine::current_simplified_state() const {
     return SimplifiedSMTPState::ENVELOPE;
 }
 
-SMTPResponse MailStateMachine::accept(const SMTPCommand& command) {
-    const auto valid_command = is_valid_command(command);
+SMTPResponse MailStateMachine::accept(const SMTPCommandType& type) {
+    const auto valid_command = is_valid_command(type);
 
     if (!valid_command) {
         return create_invalid_response();
     }
 
-    handle_command(command);
-    m_state = advanced_state(command);
+    m_state = advanced_state(type);
 
-    return create_valid_response(command);
+    return create_valid_response(type);
 }
 
-bool MailStateMachine::is_valid_command(const SMTPCommand& command) {
+bool MailStateMachine::is_valid_command(const SMTPCommandType& type) {
     const auto commands = accepted_commands.equal_range(m_state);
     for (auto it = commands.first; it != commands.second; ++it) {
-        if (it->second == command.type) {
+        if (it->second == type) {
             return true;
         }
     }
@@ -46,14 +45,7 @@ bool MailStateMachine::is_valid_command(const SMTPCommand& command) {
     return false;
 }
 
-void MailStateMachine::handle_command(const SMTPCommand& command) {
-    // TODO: maybe create mail here?
-    (void)command;
-}
-
-SMTPState MailStateMachine::advanced_state(const SMTPCommand& command) {
-    // There is probably a better way to do this, since this is quite error prone
-    // Or we need really good tests
+SMTPState MailStateMachine::advanced_state(const SMTPCommandType& type) {
     switch (m_state) {
         case SMTPState::CLIENT_INIT:
             return SMTPState::MAIL_FROM;
@@ -62,7 +54,7 @@ SMTPState MailStateMachine::advanced_state(const SMTPCommand& command) {
         case SMTPState::RCPT_TO:
             return SMTPState::RCPT_TO_OR_DATA_BEGIN;
         case SMTPState::RCPT_TO_OR_DATA_BEGIN:
-            if (command.type == SMTPCommandType::DATA_BEGIN) {
+            if (type == SMTPCommandType::DATA_BEGIN) {
                 return SMTPState::DATA_CONTENT;
             }
             return SMTPState::RCPT_TO_OR_DATA_BEGIN;
@@ -75,8 +67,8 @@ SMTPState MailStateMachine::advanced_state(const SMTPCommand& command) {
     }
 }
 
-SMTPResponse MailStateMachine::create_valid_response(const SMTPCommand& command) {
-    switch (command.type) {
+SMTPResponse MailStateMachine::create_valid_response(const SMTPCommandType& type) {
+    switch (type) {
         case SMTPCommandType::DATA_BEGIN:
             return {354, "End Data with <CR><LF>.<CR><LF>"};
         case SMTPCommandType::QUIT:

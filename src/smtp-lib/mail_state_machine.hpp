@@ -8,13 +8,13 @@ class MailStateMachine {
 
     SMTPState current_state() const;
     SimplifiedSMTPState current_simplified_state() const;
-    SMTPResponse accept(const SMTPCommand& command);
+    SMTPResponse accept(const SMTPCommandType& type);
 
   private:
-    bool is_valid_command(const SMTPCommand& command);
-    void handle_command(const SMTPCommand& command);
-    SMTPState advanced_state(const SMTPCommand& command);
-    SMTPResponse create_valid_response(const SMTPCommand& command);
+    bool is_valid_command(const SMTPCommandType& type);
+
+    SMTPState advanced_state(const SMTPCommandType& type);
+    SMTPResponse create_valid_response(const SMTPCommandType& type);
     SMTPResponse create_invalid_response();
 
     SMTPState m_state;

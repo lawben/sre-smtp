@@ -17,13 +17,26 @@ void MailReceiver::run() {
         try {
             const auto smtp_commands = m_parser.accept(request, m_state_machine.current_simplified_state());
             for (const auto& command : smtp_commands) {
-                const auto response = m_state_machine.accept(command);
-                send_response(std::to_string(response.code) + " " + response.string + NEWLINE_TOKEN);
+                // const auto response = m_state_machine.accept(command.type);
+				// bool accepted 
+				// if(accepted) {
+				//	  m_mail_builder.add(command);
+				//	  if(command.type == SMTPCommandType::DATA)
+				//	  {
+				//	      try {
+				//	         auto mail = m_mail_builder.build();
+				//	  		  m_mail_persister.persist(mail);
+				//	      } catch (const std::runtim_error& e) { }
+				//	  } 
+				//	  response = get_accepted_response(command.type);
+				// } else {
+                // response = get_not_accepted_response(command.type);
             }
         } catch (const std::runtime_error& e) {
             // TODO: Do something meaningful
-            send_response(e.what());
-        }
+            // send_response(e.what());
+            // response = get_error_response(command.type);
+		}
         if (!response.empty()) send_response(response);
     }
 }
