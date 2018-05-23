@@ -12,7 +12,7 @@ static const std::map<std::string, SMTPCommandType> string_to_token{{"helo ", SM
                                                                     {"rcpt to:", SMTPCommandType::RCPT},
                                                                     {"data", SMTPCommandType::DATA_BEGIN},
                                                                     {"quit", SMTPCommandType::QUIT}};
-} 
+}  // namespace
 
 std::vector<SMTPCommand> MailParser::accept(const ParserRequest& request, SimplifiedSMTPState state) {
     m_buffer.append(request.message);
@@ -55,18 +55,17 @@ SMTPCommand MailParser::parse_buffer(SimplifiedSMTPState state) {
 SMTPCommand MailParser::parse_envelope_buffer() {
     SMTPCommand command;
     command.type = SMTPCommandType::INVALID;
-	command.data = "";
+    command.data = "";
 
     for (const auto& conversion : string_to_token) {
         std::string prefix = m_buffer.substr(0, conversion.first.size());
         std::transform(prefix.begin(), prefix.end(), prefix.begin(), ::tolower);
 
-		if (conversion.first == prefix)
-		{
+        if (conversion.first == prefix) {
             command.type = conversion.second;
             command.data = conversion.first;
-			break;
-		}
+            break;
+        }
     }
 
     const auto end = m_buffer.find(NEWLINE_TOKEN);
