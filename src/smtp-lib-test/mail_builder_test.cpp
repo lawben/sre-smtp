@@ -17,7 +17,7 @@ TEST_CASE("build simple mail", "[unit][mail_builder]") {
 
     builder.add({SMTPCommandType::MAIL, from});
     builder.add({SMTPCommandType::RCPT, to});
-    builder.add({SMTPCommandType::RCPT, data});
+    builder.add({SMTPCommandType::DATA, data});
 
     auto mail = builder.build();
 
@@ -27,3 +27,8 @@ TEST_CASE("build simple mail", "[unit][mail_builder]") {
     REQUIRE(mail.to.size() == 1);
     CHECK(mail.to[0] == to);
 }
+
+// invalide token
+// multiple from
+// multiple data
+// reset mail

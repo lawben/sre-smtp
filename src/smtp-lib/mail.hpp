@@ -9,14 +9,15 @@ class Mail {
   friend MailBuilder;
 
   protected:
+    Mail(){};
     Mail(std::string from, std::vector<std::string> to, std::string data) :
 	from(from),
 	to(to),
 	data(data){};
 
   public:
-    const std::string from;
-    const std::vector<std::string> to;
+    std::string from;
+    std::vector<std::string> to;
 
-	const std::string data;
+	std::string data;
 };
