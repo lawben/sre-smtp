@@ -38,7 +38,7 @@ TEST_CASE("test DATA_BEGIN", "[unit][mail_parser]") {
 TEST_CASE("test multiple commands", "[unit][mail_parser]") {
     MailParser parser;
     const auto responses = parser.accept(ParserRequest("HELO my-sender\r\nMAIL FROM:my-sender\r\nRCPT TO:my-rec\r\n"),
-                              SimplifiedSMTPState::ENVELOPE);
+                                         SimplifiedSMTPState::ENVELOPE);
     REQUIRE(responses.size() == 3);
     CHECK(responses[0].type == SMTPCommandType::HELO);
     CHECK(responses[0].data == "my-sender");
@@ -56,7 +56,7 @@ TEST_CASE("test DATA body", "[unit][mail_parser]") {
     CHECK(responses[0].type == SMTPCommandType::DATA_BEGIN);
 
     responses = parser.accept(ParserRequest("line-a\r\nline-b\r\nline-c\r\n.\r\n"), SimplifiedSMTPState::CONTENT);
-	REQUIRE(responses.size() == 1);
+    REQUIRE(responses.size() == 1);
     CHECK(responses[0].type == SMTPCommandType::DATA);
     CHECK(responses[0].data == "line-a\r\nline-b\r\nline-c");
 }
