@@ -10,18 +10,17 @@ add_library(
         src/smtp-lib/connection.hpp
         src/smtp-lib/mail_parser.cpp
         src/smtp-lib/mail_parser.hpp
-        src/smtp-lib/mail_receiver.cpp
-        src/smtp-lib/mail_receiver.hpp
         src/smtp-lib/mail_state_machine.cpp
         src/smtp-lib/mail_state_machine.hpp
         src/smtp-lib/raw_socket.cpp
         src/smtp-lib/raw_socket.hpp
-        src/smtp-lib/socket.cpp
-        src/smtp-lib/socket.hpp
+        src/smtp-lib/socket_listener.cpp
+        src/smtp-lib/socket_listener.hpp
+        src/smtp-lib/mail_receiver.cpp
+        src/smtp-lib/mail_receiver.hpp
         src/smtp-lib/smtp_server.cpp
         src/smtp-lib/smtp_server.hpp
-        src/smtp-lib/smtp_utils.hpp
-        src/smtp-lib/utils.hpp)
+        src/smtp-lib/smtp_utils.hpp)
 
 set_target_properties(smtp-lib PROPERTIES LINKER_LANGUAGE CXX)
 set_property(TARGET smtp-lib PROPERTY CXX_STANDARD 17)
@@ -46,10 +45,15 @@ endif()
 add_executable(
 		smtp-lib-test 
 		
-		src/smtp-lib-test/test.cpp
-		src/smtp-lib-test/acceptancetest.cpp
-		src/smtp-lib-test/servertest.cpp
-		src/smtp-lib-test/mail_parser_test.cpp)
+		src/smtp-lib-test/acceptance_test.cpp
+		src/smtp-lib-test/connection_test.cpp
+		src/smtp-lib-test/helpers.hpp
+		src/smtp-lib-test/mail_parser_test.cpp
+		src/smtp-lib-test/raw_socket_test.cpp
+		src/smtp-lib-test/server_test.cpp
+		src/smtp-lib-test/socket_listener_test.cpp
+		src/smtp-lib-test/test.cpp)
+
 set_property(TARGET smtp-lib-test PROPERTY CXX_STANDARD 17)
 target_include_directories(smtp-lib-test PRIVATE catch src)
 target_link_libraries(smtp-lib-test smtp-lib)

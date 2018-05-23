@@ -2,11 +2,10 @@
 
 #include <string>
 #include <vector>
-#include "utils.hpp"
 
 using Bytes = std::vector<char>;
 
-class RawSocket : public NonCopyable {
+class RawSocket {
   public:
 #ifdef WIN32
     using SocketType = size_t;
@@ -15,22 +14,32 @@ class RawSocket : public NonCopyable {
 #endif
 
     static RawSocket new_socket();
+    static RawSocket new_socket(uint16_t port);
+    static void clean_up();
 
     ~RawSocket();
+    RawSocket(const RawSocket&) = delete;
+    RawSocket& operator=(const RawSocket&) = delete;
     RawSocket(RawSocket&& other) noexcept;
     RawSocket& operator=(RawSocket&& other) noexcept;
 
-    void bind(int port);
-    void listen(int backlog);
+    bool is_valid() const;
+
+    bool bind(int port);
+    bool listen(int backlog);
     RawSocket accept();
     void connect(std::string& addr, int port);
     Bytes read(size_t size);
-    void write(const Bytes& data);
-    void write(const std::string& data);
+    bool write(const Bytes& data);
+    bool write(const std::string& data);
+    void close();
 
   private:
     explicit RawSocket(SocketType id);
-    static std::string get_error();
+
+    static int get_error_id();
+    static std::string get_error_string(int error_id);
+    static bool is_temporary_error(int error_id);
 
 #ifdef WIN32
     static bool s_initialized;

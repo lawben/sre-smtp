@@ -1,19 +1,20 @@
 #pragma once
 
-#include <memory>
 #include <vector>
+
 #include "raw_socket.hpp"
 
-class Connection : public NonCopyable {
+class Connection {
   public:
-    explicit Connection(std::unique_ptr<RawSocket> raw_socket);
+    explicit Connection(RawSocket raw_socket);
 
     Bytes read();
     void write(const std::vector<char>& bytes);
     void write(const std::string& message);
 
-    RawSocket* get_socket() { return m_raw_socket.get(); };
+    bool is_valid();
+    void close();
 
   private:
-    std::unique_ptr<RawSocket> m_raw_socket;
+    RawSocket m_raw_socket;
 };

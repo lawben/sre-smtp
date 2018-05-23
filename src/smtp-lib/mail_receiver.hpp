@@ -4,19 +4,24 @@
 #include "mail_parser.hpp"
 #include "mail_state_machine.hpp"
 
-class MailReceiver : public NonCopyable {
+class MailReceiver {
   public:
-    explicit MailReceiver(std::unique_ptr<Connection> connection);
+    explicit MailReceiver(Connection connection);
+    MailReceiver(MailReceiver&&) = default;
+    MailReceiver& operator=(MailReceiver&&) = default;
 
-    // This is the main SMTP loop. This assumes a valid connection with read/write. It will run in a separate thread.
     void run();
 
+    void stop();
+
   private:
-    std::unique_ptr<Connection> m_connection;
+    Connection m_connection;
+    bool m_stop_requested = false;
+    bool m_error_occurred = false;
     MailParser m_parser;
     MailStateMachine m_state_machine;
 
     void send_response(const std::string& msg);
 
-    bool m_error_occurred = false;
+    bool no_stop_needed();
 };
