@@ -13,9 +13,16 @@ enum class SMTPState { CLIENT_INIT, MAIL_FROM, RCPT_TO, RCPT_TO_OR_DATA_BEGIN, D
 
 enum class SimplifiedSMTPState { ENVELOPE, CONTENT };
 
-struct SMTPResponse {
-    uint16_t code;
+static const std::string NEWLINE_TOKEN = "\r\n";
+
+class SMTPResponse {
+  public:
+    SMTPResponse(uint16_t c, const std::string& s)
+        : code(c), string(s) {}
+	
+	uint16_t code;
     std::string string;
+
+    std::string get_message() const { return std::to_string(code) + " " + string + NEWLINE_TOKEN; }
 };
 
-static const std::string NEWLINE_TOKEN = "\r\n";

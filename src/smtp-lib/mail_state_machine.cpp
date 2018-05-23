@@ -27,13 +27,6 @@ MailStateMachine::MailStateMachine() : m_state(SMTPState::CLIENT_INIT) {}
 
 SMTPState MailStateMachine::current_state() const { return m_state; }
 
-SimplifiedSMTPState MailStateMachine::current_simplified_state() const {
-    if (m_state == SMTPState::DATA_CONTENT) {
-        return SimplifiedSMTPState::CONTENT;
-    }
-    return SimplifiedSMTPState::ENVELOPE;
-}
-
 bool MailStateMachine::accept(const SMTPCommandType& type) {
     if (is_valid_command(type)) {
         advanced_state(type);
@@ -81,16 +74,3 @@ void MailStateMachine::advanced_state(const SMTPCommandType& type) {
             throw std::runtime_error("Case not implemented.");
     }
 }
-
-SMTPResponse MailStateMachine::create_valid_response(const SMTPCommandType& type) {
-    switch (type) {
-        case SMTPCommandType::DATA_BEGIN:
-            return {354, "End Data with <CR><LF>.<CR><LF>"};
-        case SMTPCommandType::QUIT:
-            return {221, "Bye!"};
-        default:
-            return {250, "OK"};
-    }
-}
-
-SMTPResponse MailStateMachine::create_invalid_response() { return {500, "Invalid command!"}; }

@@ -7,15 +7,11 @@ class MailStateMachine {
     MailStateMachine();
 
     SMTPState current_state() const;
-    SimplifiedSMTPState current_simplified_state() const;
     bool accept(const SMTPCommandType& type);
 
   private:
-    bool is_valid_command(const SMTPCommandType& type);
-
-    void advanced_state(const SMTPCommandType& type);
-    SMTPResponse create_valid_response(const SMTPCommandType& type);
-    SMTPResponse create_invalid_response();
-
     SMTPState m_state;
+
+    bool is_valid_command(const SMTPCommandType& type);
+    void advanced_state(const SMTPCommandType& type);
 };
