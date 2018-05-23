@@ -53,6 +53,7 @@ add_executable(
 		src/smtp-lib-test/helpers.hpp
 		src/smtp-lib-test/mail_builder_test.cpp
 		src/smtp-lib-test/mail_parser_test.cpp
+		src/smtp-lib-test/mail_state_machine_test.cpp
 		src/smtp-lib-test/raw_socket_test.cpp
 		src/smtp-lib-test/server_test.cpp
 		src/smtp-lib-test/socket_listener_test.cpp
