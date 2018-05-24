@@ -21,15 +21,6 @@ struct ParserRequest {
 
 enum class ParserStatus { COMPLETE, INCOMPLETE, TO_LONG };
 
-static const std::map<std::string, SMTPCommandType> envelop_tokens{{"helo ", SMTPCommandType::HELO},
-                                                                   {"mail from:", SMTPCommandType::MAIL},
-                                                                   {"rcpt to:", SMTPCommandType::RCPT},
-                                                                   {"data", SMTPCommandType::DATA_BEGIN},
-                                                                   {"quit", SMTPCommandType::QUIT}};
-static const std::map<std::string, SMTPCommandType> content_tokens{{"", SMTPCommandType::DATA}};
-
-static const std::string DATA_END_TOKEN = "\r\n.\r\n";
-
 class MailParser {
   public:
     static MailParser get_content_parser() { return MailParser(DATA_END_TOKEN, content_tokens); }
@@ -51,6 +42,6 @@ class MailParser {
 
     ParserStatus parser_status();
 
-	void extract_command_type();
+    void extract_command_type();
     void extract_data();
 };

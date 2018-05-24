@@ -29,6 +29,7 @@ class MailReceiver {
 	SMTPResponse get_accepted_response(const SMTPCommandType& type) const;
     SMTPResponse get_not_accepted_response(const SMTPCommandType& type) const;
     SMTPResponse get_error_response(const std::exception& e) const;
+    SMTPResponse get_parser_error_response(const ParserStatus type) const;
 
     void send_response(const SMTPResponse& response);
 

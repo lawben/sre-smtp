@@ -5,9 +5,7 @@
 #include "mail_parser.hpp"
 
 MailReceiver::MailReceiver(Connection connection)
-    : m_connection(std::move(connection)),
-      m_parser(MailParser::get_envelop_parser()),
-      m_stop_requested(false) {}
+    : m_connection(std::move(connection)), m_parser(MailParser::get_envelop_parser()), m_stop_requested(false) {}
 
 void MailReceiver::run() {
     send_response(get_welcome_response());
@@ -17,34 +15,42 @@ void MailReceiver::run() {
 
         const auto bytes = m_connection.read();
         ParserRequest request{bytes};
-        
-		try {
-            if (m_parser.accept(request) == ParserStatus::COMPLETE) {
+        if (bytes.empty()) continue;
+
+        try {
+            auto parser_state = m_parser.accept(request);
+
+            if (parser_state != ParserStatus::INCOMPLETE) {
                 const auto command = m_parser.get_command();
-                const auto command_accepted = m_state_machine.accept(command.type);
 
-                if (command_accepted) {
-                    m_mail_builder.add(command);
+                if (parser_state == ParserStatus::COMPLETE) {
+                    const auto command_accepted = m_state_machine.accept(command.type);
 
-                    switch (command.type) {
-                        case SMTPCommandType::DATA:
-                            m_parser = MailParser::get_envelop_parser();
-                            //m_mail_persister.persist(m_mail_builder.build());
-                            break;
-                        case SMTPCommandType::DATA_BEGIN:
-                            m_parser = MailParser::get_content_parser();
-                            break;
-                        case SMTPCommandType::HELO:
-                        case SMTPCommandType::RSET:
-                        case SMTPCommandType::INVALID:
-                            m_parser = MailParser::get_envelop_parser();
-                            break;
+                    if (command_accepted) {
+                        m_mail_builder.add(command);
+
+                        switch (command.type) {
+                            case SMTPCommandType::DATA:
+                                m_parser = MailParser::get_envelop_parser();
+                                //m_mail_persister.persist(m_mail_builder.build());
+                                break;
+                            case SMTPCommandType::DATA_BEGIN:
+                                m_parser = MailParser::get_content_parser();
+                                break;
+                            case SMTPCommandType::HELO:
+                            case SMTPCommandType::RSET:
+                            case SMTPCommandType::INVALID:
+                                m_parser = MailParser::get_envelop_parser();
+                                break;
+                        }
+                        if (command.type == SMTPCommandType::DATA) {
+                        }
+                        response = get_accepted_response(command.type);
+                    } else {
+                        response = get_not_accepted_response(command.type);
                     }
-                    if (command.type == SMTPCommandType::DATA) {
-                    }
-                    response = get_accepted_response(command.type);
                 } else {
-                    response = get_not_accepted_response(command.type);
+                    response = get_parser_error_response(parser_state);
                 }
             }
         } catch (const std::runtime_error& e) {
@@ -74,6 +80,15 @@ SMTPResponse MailReceiver::get_accepted_response(const SMTPCommandType& type) co
 
 SMTPResponse MailReceiver::get_not_accepted_response(const SMTPCommandType& type) const {
     return {500, "Invalid command!"};
+}
+
+SMTPResponse MailReceiver::get_parser_error_response(const ParserStatus state) const {
+    switch (state) {
+        case ParserStatus::TO_LONG:
+            return {500, "Parser error, received bytes after end token."};
+        default:
+            return {500, "Unknown parser error."};
+    }
 }
 
 SMTPResponse MailReceiver::get_error_response(const std::exception& e) const {
