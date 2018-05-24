@@ -1,18 +1,31 @@
 #include "envelop_parser.hpp"
 
 #include <algorithm>
+#include <map>
 
-std::vector<SMTPCommand> EnvelopParser::accept(const ParserRequest& request) {
+namespace {
+static const std::map<std::string, SMTPCommandType> string_to_token{{"helo ", SMTPCommandType::HELO},
+                                                                    {"mail from:", SMTPCommandType::MAIL},
+                                                                    {"rcpt to:", SMTPCommandType::RCPT},
+                                                                    {"data", SMTPCommandType::DATA_BEGIN},
+                                                                    {"quit", SMTPCommandType::QUIT}};
+}  // namespace
+
+EnvelopParser::EnvelopParser() : AbstractParser(NEWLINE_TOKEN) {}
+
+ParserStatus EnvelopParser::accept(const ParserRequest& request) {
     m_buffer.append(request);
-	
-	std::vector<SMTPCommand> responses;
+	// if no type, search for identifier
+
     if (find_delemiter()) {
-        const auto command = parse_buffer();
-        responses.push_back(command);
+        // check if buffer is longer then expected
+        return ParserStatus::COMPLETE;
     }
 
-	return responses;
+    return ParserStatus::INCOMPLETE;
 }
+
+SMTPCommand EnvelopParser::get_command() { return parse_buffer(); }
 
 SMTPCommand EnvelopParser::parse_buffer() {
     SMTPCommand command;
@@ -30,11 +43,9 @@ SMTPCommand EnvelopParser::parse_buffer() {
         }
     }
 
-    const auto end = m_buffer.find(NEWLINE_TOKEN);
-    const auto data = m_buffer.substr(command.data.length(), end - command.data.length());
-    m_buffer.erase(0, end + NEWLINE_TOKEN.length());
-    command.data = data;
+    const auto end = m_buffer.find(m_delemiter);
+    command.data = m_buffer.substr(command.data.length(), end - command.data.length());
+    m_buffer = "";
     return command;
 }
 
-bool EnvelopParser::find_delemiter() { return m_buffer.find(NEWLINE_TOKEN) != std::string::npos; }

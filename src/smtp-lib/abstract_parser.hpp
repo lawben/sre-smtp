@@ -1,6 +1,5 @@
 #pragma once
 
-#include <map>
 #include <vector>
 
 #include "smtp_utils.hpp"
@@ -18,23 +17,19 @@ struct ParserRequest {
     operator std::string() const { return message; }
 };
 
-namespace {
-static const std::string DATA_END_TOKEN = "\r\n.\r\n";
-static const std::map<std::string, SMTPCommandType> string_to_token{{"helo ", SMTPCommandType::HELO},
-                                                                    {"mail from:", SMTPCommandType::MAIL},
-                                                                    {"rcpt to:", SMTPCommandType::RCPT},
-                                                                    {"data", SMTPCommandType::DATA_BEGIN},
-                                                                    {"quit", SMTPCommandType::QUIT}};
-}  // namespace
+enum class ParserStatus { COMPLETE, INCOMPLETE, TO_LONG };
 
 class AbstractParser {
   public:
+    AbstractParser(const std::string& delemiter) : m_delemiter(delemiter){};
     virtual ~AbstractParser() = default;
 
-    virtual std::vector<SMTPCommand> accept(const ParserRequest& message) = 0;
+    virtual ParserStatus accept(const ParserRequest& message) = 0;
+    virtual SMTPCommand get_command() = 0;
 
   protected:
-    enum class BufferStatus { COMPLETE, INCOMPLETE };
-    std::string delemiter;
+    const std::string m_delemiter;
     std::string m_buffer;
+
+    bool find_delemiter() { return m_buffer.find(m_delemiter) != std::string::npos; }
 };

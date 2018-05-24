@@ -4,10 +4,11 @@
 
 class EnvelopParser : public AbstractParser {
   public:
+    EnvelopParser();
     ~EnvelopParser() = default;
-    std::vector<SMTPCommand> accept(const ParserRequest& request) override;
-    SMTPCommand parse_buffer();
+    ParserStatus accept(const ParserRequest& request) override;
+    SMTPCommand get_command() override;
 
   private:
-    bool find_delemiter();
+    SMTPCommand parse_buffer();
 };

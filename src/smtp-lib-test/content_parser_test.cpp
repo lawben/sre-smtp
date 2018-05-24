@@ -3,36 +3,26 @@
 
 #include "smtp-lib/content_parser.hpp"
 
-
 TEST_CASE("test DATA body", "[unit][content_parser]") {
     ContentParser parser;
 
-    auto responses = parser.accept(ParserRequest("line-a\r\nline-b\r\nline-c\r\n.\r\n"));
-    
-	REQUIRE(responses.size() == 1);
-    CHECK(responses[0].type == SMTPCommandType::DATA);
-    CHECK(responses[0].data == "line-a\r\nline-b\r\nline-c");
-}
+    REQUIRE(parser.accept(ParserRequest("line-a\r\nline-b\r\nline-c\r\n.\r\n")) == ParserStatus::COMPLETE);
 
+    const auto command = parser.get_command();
+    CHECK(command.type == SMTPCommandType::DATA);
+    CHECK(command.data == "line-a\r\nline-b\r\nline-c");
+}
 
 TEST_CASE("multiple lines", "[unit][content_parser]") {
     ContentParser parser;
-    
-	auto responses = parser.accept(ParserRequest("This "));
 
-    CHECK(responses.size() == 0);
+    CHECK(parser.accept(ParserRequest("This ")) == ParserStatus::INCOMPLETE);
+    CHECK(parser.accept(ParserRequest("is ")) == ParserStatus::INCOMPLETE);
+    CHECK(parser.accept(ParserRequest("Testing!!!?")) == ParserStatus::INCOMPLETE);
 
-    responses = parser.accept(ParserRequest("is "));
+	CHECK(parser.accept(ParserRequest("\r\n.\r\n")) == ParserStatus::COMPLETE);
 
-	CHECK(responses.size() == 0);
-
-    responses = parser.accept(ParserRequest("Testing!!!?"));
-
-	CHECK(responses.size() == 0);
-
-    responses = parser.accept(ParserRequest("\r\n.\r\n"));
-
-    REQUIRE(responses.size() == 1);
-    CHECK(responses[0].type == SMTPCommandType::DATA);
-    CHECK(responses[0].data == "This is Testing!!!?");
+    const auto command = parser.get_command(); 
+    CHECK(command.type == SMTPCommandType::DATA);
+    CHECK(command.data == "This is Testing!!!?");
 }

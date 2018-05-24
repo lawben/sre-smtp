@@ -7,20 +7,22 @@
 #include "envelop_parser.hpp"
 
 MailReceiver::MailReceiver(Connection connection)
-    : m_connection(std::move(connection)), m_parser(std::unique_ptr<AbstractParser>(new EnvelopParser())), m_stop_requested(false) {}
+    : m_connection(std::move(connection)),
+      m_parser(std::unique_ptr<AbstractParser>(new EnvelopParser())),
+      m_stop_requested(false) {}
 
 void MailReceiver::run() {
     send_response(get_welcome_response());
 
     while (no_stop_needed()) {
-        SMTPResponse response{0,""};
+        SMTPResponse response{0, ""};
+
         const auto bytes = m_connection.read();
-
         ParserRequest request{bytes};
-        try {
-            const auto smtp_commands = m_parser->accept(request);
-
-            for (const auto& command : smtp_commands) {
+        
+		try {
+            if (m_parser->accept(request) == ParserStatus::COMPLETE) {
+                const auto command = m_parser->get_command();
                 const auto command_accepted = m_state_machine.accept(command.type);
 
                 if (command_accepted) {
@@ -54,16 +56,13 @@ void MailReceiver::run() {
     }
 }
 
-void MailReceiver::send_response(const SMTPResponse& response) { 
-    m_connection.write(response.get_message());
-}
+void MailReceiver::send_response(const SMTPResponse& response) { m_connection.write(response.get_message()); }
 
 void MailReceiver::stop() { m_stop_requested = true; }
 
 bool MailReceiver::no_stop_needed() { return !m_error_occurred && !m_stop_requested; }
 
-SMTPResponse MailReceiver::get_welcome_response() const { return {220, "sre - smtp server"};
-	}
+SMTPResponse MailReceiver::get_welcome_response() const { return {220, "sre - smtp server"}; }
 SMTPResponse MailReceiver::get_accepted_response(const SMTPCommandType& type) const {
     switch (type) {
         case SMTPCommandType::DATA_BEGIN:

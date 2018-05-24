@@ -1,29 +1,35 @@
 #include "content_parser.hpp"
 
-std::vector<SMTPCommand> ContentParser::accept(const ParserRequest& request) {
-    m_buffer.append(request);
+#include "abstract_parser.hpp"
 
-    std::vector<SMTPCommand> responses;
-    if (find_delemiter()) {
-        const auto command = parse_buffer();
-        responses.push_back(command);
-    }
-
-    return responses;
+namespace {
+static const std::string DATA_END_TOKEN = "\r\n.\r\n";
 }
 
-SMTPCommand ContentParser::parse_buffer() {
+ContentParser::ContentParser() : AbstractParser(DATA_END_TOKEN) {}
+
+ParserStatus ContentParser::accept(const ParserRequest& request) {
+    m_buffer.append(request);
+    // take only new data into account
+
+    if (find_delemiter()) {
+        // check if buffer is longer then expected
+        return ParserStatus::COMPLETE;
+    }
+
+    return ParserStatus::INCOMPLETE;
+}
+
+SMTPCommand ContentParser::get_command() {
     auto data_end_position = m_buffer.find(DATA_END_TOKEN);
 
     // This case should never occur, because we checked wheter the buffer is complete before
     if (data_end_position == std::string::npos) {
-        throw std::runtime_error("Implementation is broken!");
+        throw std::runtime_error("Command sequence is not finished.");
     }
 
     const auto data = m_buffer.substr(0, data_end_position);
-    m_buffer.erase(0, data_end_position + DATA_END_TOKEN.length());
+    m_buffer = "";
 
     return {SMTPCommandType::DATA, data};
 }
-
-bool ContentParser::find_delemiter() { return m_buffer.find(DATA_END_TOKEN) != std::string::npos; }
