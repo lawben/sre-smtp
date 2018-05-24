@@ -1,17 +1,21 @@
 #pragma once
 
-#include <vector>
 #include <map>
+#include <vector>
 
 #include "smtp_utils.hpp"
 
 using Bytes = std::vector<char>;
 
 struct ParserRequest {
+  protected:
     std::string message;
 
+  public:
     explicit ParserRequest(const Bytes& bytes) : message(bytes.begin(), bytes.end()) {}
     explicit ParserRequest(const std::string& bytes) : message(bytes) {}
+
+    operator std::string() const { return message; }
 };
 
 namespace {

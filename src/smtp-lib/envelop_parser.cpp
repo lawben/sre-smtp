@@ -3,7 +3,7 @@
 #include <algorithm>
 
 std::vector<SMTPCommand> EnvelopParser::accept(const ParserRequest& request) {
-    m_buffer.append(request.message);
+    m_buffer.append(request);
 	
 	std::vector<SMTPCommand> responses;
     if (find_delemiter()) {

@@ -1,7 +1,7 @@
 #include "content_parser.hpp"
 
 std::vector<SMTPCommand> ContentParser::accept(const ParserRequest& request) {
-    m_buffer.append(request.message);
+    m_buffer.append(request);
 
     std::vector<SMTPCommand> responses;
     if (find_delemiter()) {
