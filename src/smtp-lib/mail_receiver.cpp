@@ -2,13 +2,11 @@
 
 #include <iostream>
 
-#include "abstract_parser.hpp"
-#include "content_parser.hpp"
-#include "envelop_parser.hpp"
+#include "mail_parser.hpp"
 
 MailReceiver::MailReceiver(Connection connection)
     : m_connection(std::move(connection)),
-      m_parser(std::unique_ptr<AbstractParser>(new EnvelopParser())),
+      m_parser(MailParser::get_envelop_parser()),
       m_stop_requested(false) {}
 
 void MailReceiver::run() {
@@ -21,8 +19,8 @@ void MailReceiver::run() {
         ParserRequest request{bytes};
         
 		try {
-            if (m_parser->accept(request) == ParserStatus::COMPLETE) {
-                const auto command = m_parser->get_command();
+            if (m_parser.accept(request) == ParserStatus::COMPLETE) {
+                const auto command = m_parser.get_command();
                 const auto command_accepted = m_state_machine.accept(command.type);
 
                 if (command_accepted) {
@@ -30,16 +28,16 @@ void MailReceiver::run() {
 
                     switch (command.type) {
                         case SMTPCommandType::DATA:
-                            m_parser = std::make_unique<EnvelopParser>();
+                            m_parser = MailParser::get_envelop_parser();
                             //m_mail_persister.persist(m_mail_builder.build());
                             break;
                         case SMTPCommandType::DATA_BEGIN:
-                            m_parser = std::make_unique<ContentParser>();
+                            m_parser = MailParser::get_content_parser();
                             break;
                         case SMTPCommandType::HELO:
                         case SMTPCommandType::RSET:
                         case SMTPCommandType::INVALID:
-                            m_parser = std::make_unique<EnvelopParser>();
+                            m_parser = MailParser::get_envelop_parser();
                             break;
                     }
                     if (command.type == SMTPCommandType::DATA) {

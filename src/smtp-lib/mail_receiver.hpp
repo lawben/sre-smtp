@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "abstract_parser.hpp"
+#include "mail_parser.hpp"
 #include "connection.hpp"
 #include "mail_builder.hpp"
 #include "mail_state_machine.hpp"
@@ -21,7 +21,7 @@ class MailReceiver {
     Connection m_connection;
     bool m_stop_requested = false;
     bool m_error_occurred = false;
-    std::unique_ptr<AbstractParser> m_parser;
+    MailParser m_parser;
     MailStateMachine m_state_machine;
     MailBuilder m_mail_builder;
 
