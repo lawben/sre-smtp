@@ -25,16 +25,24 @@ class MailReceiver {
     MailStateMachine m_state_machine;
     MailBuilder m_mail_builder;
 
-	SMTPResponse handle_accepted_command(const SMTPCommand& command);
+	void handle_request(const ParserRequest& request);
+
+	
+    SMTPResponse handle_accepted_command(const SMTPCommand& command);
     SMTPResponse handle_complete_command(const SMTPCommand& command);
 
-	SMTPResponse get_welcome_response() const;
-	SMTPResponse get_accepted_response(const SMTPCommandType& type) const;
-    SMTPResponse get_not_accepted_response(const SMTPCommandType& type) const;
-    SMTPResponse get_error_response(const std::exception& e) const;
-    SMTPResponse get_parser_error_response(const ParserStatus type) const;
+    void on_mail_finished();
+    void on_mail_reset();
+    void on_content_start();
 
     void send_response(const SMTPResponse& response);
 
     bool no_stop_needed();
+
+    static SMTPResponse get_welcome_response();
+    static SMTPResponse get_accepted_response(const SMTPCommandType& type);
+    static SMTPResponse get_error_response(const SMTPCommandType& type);
+    static SMTPResponse get_error_response(const std::exception& e);
+    static SMTPResponse get_error_response();
+    static SMTPResponse get_error_response(const ParserStatus type);
 };

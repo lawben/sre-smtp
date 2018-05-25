@@ -21,6 +21,8 @@ add_library(
         src/smtp-lib/socket_listener.hpp
         src/smtp-lib/mail_receiver.cpp
         src/smtp-lib/mail_receiver.hpp
+		src/smtp-lib/smtp_response_provider.hpp
+		src/smtp-lib/smtp_response_provider.cpp
         src/smtp-lib/smtp_server.cpp
         src/smtp-lib/smtp_server.hpp
         src/smtp-lib/smtp_utils.hpp)

@@ -31,9 +31,9 @@ TEST_CASE("test message extends end data token", "[unit][mail_parser]") {
     auto parser = MailParser::get_content_parser();
 
     REQUIRE(parser.accept(ParserRequest("line-a\r\nline-b\r\nline-c\r\n.\r\nThisShouldNotBeHere")) ==
-            ParserStatus::TO_LONG);
-    REQUIRE(parser.accept(ParserRequest("line-a\r\nline-b\r\nline-c\r\n.\r\nT")) == ParserStatus::TO_LONG);
-    REQUIRE(parser.accept(ParserRequest("line-a\r\nline-b\r\nline-c\r\n.\r\n\r\n.\r\n")) == ParserStatus::TO_LONG);
+            ParserStatus::TOO_LONG);
+    REQUIRE(parser.accept(ParserRequest("line-a\r\nline-b\r\nline-c\r\n.\r\nT")) == ParserStatus::TOO_LONG);
+    REQUIRE(parser.accept(ParserRequest("line-a\r\nline-b\r\nline-c\r\n.\r\n\r\n.\r\n")) == ParserStatus::TOO_LONG);
 }
 
 TEST_CASE("test HELO", "[unit][mail_parser]") {
@@ -98,9 +98,9 @@ TEST_CASE("test invalid message", "[unit][mail_parser]") {
 TEST_CASE("test message extends end token", "[unit][mail_parser]") {
     auto parser = MailParser::get_envelop_parser();
 
-    REQUIRE(parser.accept(ParserRequest("RCPT TO:my-rec\r\n\r\nThisShouldNotBeHere")) == ParserStatus::TO_LONG);
-    REQUIRE(parser.accept(ParserRequest("RCPT TO:my-rec\r\n\r\n\r\n\r\n")) == ParserStatus::TO_LONG);
-    REQUIRE(parser.accept(ParserRequest("RCPT TO:my-rec\r\n\r\nT")) == ParserStatus::TO_LONG);
+    REQUIRE(parser.accept(ParserRequest("RCPT TO:my-rec\r\n\r\nThisShouldNotBeHere")) == ParserStatus::TOO_LONG);
+    REQUIRE(parser.accept(ParserRequest("RCPT TO:my-rec\r\n\r\n\r\n\r\n")) == ParserStatus::TOO_LONG);
+    REQUIRE(parser.accept(ParserRequest("RCPT TO:my-rec\r\n\r\nT")) == ParserStatus::TOO_LONG);
 }
 
 TEST_CASE("test incomplete line", "[unit][mail_parser]") {

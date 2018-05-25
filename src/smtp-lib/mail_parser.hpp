@@ -16,10 +16,12 @@ struct ParserRequest {
     explicit ParserRequest(const Bytes& bytes) : message(bytes.begin(), bytes.end()) {}
     explicit ParserRequest(const std::string& bytes) : message(bytes) {}
 
+    bool empty() { return message.empty(); }
+
     operator std::string() const { return message; }
 };
 
-enum class ParserStatus { COMPLETE, INCOMPLETE, TO_LONG };
+enum class ParserStatus { COMPLETE, INCOMPLETE, TOO_LONG };
 
 class MailParser {
   public:

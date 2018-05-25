@@ -5,53 +5,51 @@
 #include "mail_parser.hpp"
 
 MailReceiver::MailReceiver(Connection connection)
-    : m_connection(std::move(connection)), m_parser(MailParser::get_envelop_parser()), m_stop_requested(false) {}
+    : m_connection(std::move(connection)), m_parser(MailParser::get_envelop_parser()), m_stop_requested(false) {
+    m_state_machine.set_mail_rest_callback(std::bind(&MailReceiver::on_mail_reset, this));
+    m_state_machine.set_content_start_callback(std::bind(&MailReceiver::on_content_start, this));
+    m_state_machine.set_mail_finish_callback(std::bind(&MailReceiver::on_mail_finished, this));
+}
 
 void MailReceiver::run() {
     send_response(get_welcome_response());
 
     while (no_stop_needed()) {
-        const auto bytes = m_connection.read();
-        ParserRequest request{bytes};
-        if (bytes.empty()) continue;
+        ParserRequest request{m_connection.read()};
+        if (request.empty()) continue;
 
-        auto parser_state = m_parser.accept(request);
-
-        if (parser_state == ParserStatus::INCOMPLETE) continue;
-        if (parser_state != ParserStatus::COMPLETE) {
-            m_parser.get_command();
-            auto response = get_parser_error_response(parser_state);
-            send_response(response);
-            continue;
-        }
-        try {
-            const auto command = m_parser.get_command();
-
-            if (parser_state == ParserStatus::COMPLETE) {
-                auto response = handle_complete_command(command);
-                send_response(response);
-                continue;
-            }
-        } catch (const std::runtime_error& e) {
-            auto response = get_error_response(e);
-            send_response(response);
-            continue;
-        }
+        handle_request(request);
     }
 }
 
-void MailReceiver::send_response(const SMTPResponse& response) { m_connection.write(response.get_message()); }
-
 void MailReceiver::stop() { m_stop_requested = true; }
+
+void MailReceiver::send_response(const SMTPResponse& response) { m_connection.write(response.get_message()); }
 
 bool MailReceiver::no_stop_needed() { return !m_error_occurred && !m_stop_requested; }
 
+void MailReceiver::handle_request(const ParserRequest& request) {
+    auto parser_state = m_parser.accept(request);
+
+    if (parser_state != ParserStatus::INCOMPLETE) {
+        const auto command = m_parser.get_command();
+
+        SMTPResponse response = get_error_response();
+        if (parser_state == ParserStatus::COMPLETE) {
+            response = handle_complete_command(command);
+        } else {
+            response = get_error_response(parser_state);
+        }
+
+        send_response(response);
+    }
+}
+
 SMTPResponse MailReceiver::handle_complete_command(const SMTPCommand& command) {
     if (m_state_machine.accept(command.type)) {
-        //handle_state_transition();
         return handle_accepted_command(command);
     } else {
-        return get_not_accepted_response(command.type);
+        return get_error_response(command.type);
     }
 }
 
@@ -62,26 +60,27 @@ SMTPResponse MailReceiver::handle_accepted_command(const SMTPCommand& command) {
         // TODO: log error, return msg to client?
     }
 
-    switch (command.type) {
-        case SMTPCommandType::DATA:
-            m_parser = MailParser::get_envelop_parser();
-            //m_mail_persister.persist(m_mail_builder.build());
-            break;
-        case SMTPCommandType::DATA_BEGIN:
-            m_parser = MailParser::get_content_parser();
-            break;
-        case SMTPCommandType::HELO:
-        case SMTPCommandType::RSET:
-        case SMTPCommandType::INVALID:
-            m_parser = MailParser::get_envelop_parser();
-            break;
-    }
-
     return get_accepted_response(command.type);
 }
 
-SMTPResponse MailReceiver::get_welcome_response() const { return {220, "sre - smtp server"}; }
-SMTPResponse MailReceiver::get_accepted_response(const SMTPCommandType& type) const {
+void MailReceiver::on_mail_finished() {
+    m_parser = MailParser::get_envelop_parser();
+
+    try {
+        auto mail = m_mail_builder.build();
+        // m_mail_persister.persist(mail);
+    } catch (const std::runtime_error& e) {
+        // TODO: log error, return msg to client?
+    }
+}
+
+void MailReceiver::on_mail_reset() { m_parser = MailParser::get_envelop_parser(); }
+
+void MailReceiver::on_content_start() { m_parser = MailParser::get_content_parser(); }
+
+SMTPResponse MailReceiver::get_welcome_response() { return {220, "sre - smtp server"}; }
+
+SMTPResponse MailReceiver::get_accepted_response(const SMTPCommandType& type) {
     switch (type) {
         case SMTPCommandType::DATA_BEGIN:
             return {354, "End Data with <CR><LF>.<CR><LF>"};
@@ -92,21 +91,23 @@ SMTPResponse MailReceiver::get_accepted_response(const SMTPCommandType& type) co
     }
 }
 
-SMTPResponse MailReceiver::get_not_accepted_response(const SMTPCommandType& type) const {
-    return {500, "Invalid command!"};
-}
+SMTPResponse MailReceiver::get_error_response(const SMTPCommandType& type) { return {500, "Invalid command."}; }
 
-SMTPResponse MailReceiver::get_parser_error_response(const ParserStatus state) const {
+SMTPResponse MailReceiver::get_error_response(const ParserStatus state) {
     switch (state) {
-        case ParserStatus::TO_LONG:
+        case ParserStatus::TOO_LONG:
             return {500, "Parser error, received bytes after end token."};
         default:
             return {500, "Unknown parser error."};
     }
 }
 
-SMTPResponse MailReceiver::get_error_response(const std::exception& e) const {
-    std::string msg("Internal error!");
+SMTPResponse MailReceiver::get_error_response(const std::exception& e) {
+    std::string msg("Internal error: ");
     msg += e.what();
     return {500, msg};
+}
+
+SMTPResponse MailReceiver::get_error_response() {
+    return {500, "Internal error."};
 }
