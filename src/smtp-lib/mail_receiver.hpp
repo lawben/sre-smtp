@@ -25,6 +25,9 @@ class MailReceiver {
     MailStateMachine m_state_machine;
     MailBuilder m_mail_builder;
 
+	SMTPResponse handle_accepted_command(const SMTPCommand& command);
+    SMTPResponse handle_complete_command(const SMTPCommand& command);
+
 	SMTPResponse get_welcome_response() const;
 	SMTPResponse get_accepted_response(const SMTPCommandType& type) const;
     SMTPResponse get_not_accepted_response(const SMTPCommandType& type) const;

@@ -6,13 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(
         smtp-lib
 
-        src/smtp-lib/abstract_parser.hpp
         src/smtp-lib/connection.cpp
         src/smtp-lib/connection.hpp
-        src/smtp-lib/content_parser.cpp
-        src/smtp-lib/content_parser.hpp
-        src/smtp-lib/envelop_parser.cpp
-        src/smtp-lib/envelop_parser.hpp
+        src/smtp-lib/mail_parser.cpp
+        src/smtp-lib/mail_parser.hpp
         src/smtp-lib/mail.hpp
         src/smtp-lib/mail_builder.cpp
         src/smtp-lib/mail_builder.hpp
@@ -53,10 +50,9 @@ add_executable(
 		
 		src/smtp-lib-test/acceptance_test.cpp
 		src/smtp-lib-test/connection_test.cpp
-		src/smtp-lib-test/content_parser_test.cpp
 		src/smtp-lib-test/helpers.hpp
-		src/smtp-lib-test/envelop_parser_test.cpp
 		src/smtp-lib-test/mail_builder_test.cpp
+		src/smtp-lib-test/mail_parser_test.cpp
 		src/smtp-lib-test/mail_state_machine_test.cpp
 		src/smtp-lib-test/raw_socket_test.cpp
 		src/smtp-lib-test/server_test.cpp

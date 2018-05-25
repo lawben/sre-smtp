@@ -11,52 +11,31 @@ void MailReceiver::run() {
     send_response(get_welcome_response());
 
     while (no_stop_needed()) {
-        SMTPResponse response{0, ""};
-
         const auto bytes = m_connection.read();
         ParserRequest request{bytes};
         if (bytes.empty()) continue;
 
+        auto parser_state = m_parser.accept(request);
+
+        if (parser_state == ParserStatus::INCOMPLETE) continue;
+        if (parser_state != ParserStatus::COMPLETE) {
+            auto response = get_parser_error_response(parser_state);
+            send_response(response);
+            continue;
+		}
         try {
-            auto parser_state = m_parser.accept(request);
+			const auto command = m_parser.get_command();
 
-            if (parser_state != ParserStatus::INCOMPLETE) {
-                const auto command = m_parser.get_command();
-
-                if (parser_state == ParserStatus::COMPLETE) {
-                    const auto command_accepted = m_state_machine.accept(command.type);
-
-                    if (command_accepted) {
-                        m_mail_builder.add(command);
-
-                        switch (command.type) {
-                            case SMTPCommandType::DATA:
-                                m_parser = MailParser::get_envelop_parser();
-                                //m_mail_persister.persist(m_mail_builder.build());
-                                break;
-                            case SMTPCommandType::DATA_BEGIN:
-                                m_parser = MailParser::get_content_parser();
-                                break;
-                            case SMTPCommandType::HELO:
-                            case SMTPCommandType::RSET:
-                            case SMTPCommandType::INVALID:
-                                m_parser = MailParser::get_envelop_parser();
-                                break;
-                        }
-                        if (command.type == SMTPCommandType::DATA) {
-                        }
-                        response = get_accepted_response(command.type);
-                    } else {
-                        response = get_not_accepted_response(command.type);
-                    }
-                } else {
-                    response = get_parser_error_response(parser_state);
-                }
-            }
+            if (parser_state == ParserStatus::COMPLETE) {
+                auto response = handle_complete_command(command);
+                send_response(response);
+                continue;
+			}
         } catch (const std::runtime_error& e) {
-            response = get_error_response(e);
+            auto response = get_error_response(e);
+            send_response(response);
+            continue;
         }
-        if (!response.string.empty()) send_response(response);
     }
 }
 
@@ -65,6 +44,40 @@ void MailReceiver::send_response(const SMTPResponse& response) { m_connection.wr
 void MailReceiver::stop() { m_stop_requested = true; }
 
 bool MailReceiver::no_stop_needed() { return !m_error_occurred && !m_stop_requested; }
+
+SMTPResponse MailReceiver::handle_complete_command(const SMTPCommand& command) {
+    if (m_state_machine.accept(command.type)) {
+        //handle_state_transition();
+        return handle_accepted_command(command);
+    } else {
+        return get_not_accepted_response(command.type);
+    }
+}
+
+SMTPResponse MailReceiver::handle_accepted_command(const SMTPCommand& command) {
+    try {
+        m_mail_builder.add(command);
+    } catch (const std::runtime_error& e) {
+        // TODO: log error, return msg to client?
+    }
+
+    switch (command.type) {
+        case SMTPCommandType::DATA:
+            m_parser = MailParser::get_envelop_parser();
+            //m_mail_persister.persist(m_mail_builder.build());
+            break;
+        case SMTPCommandType::DATA_BEGIN:
+            m_parser = MailParser::get_content_parser();
+            break;
+        case SMTPCommandType::HELO:
+        case SMTPCommandType::RSET:
+        case SMTPCommandType::INVALID:
+            m_parser = MailParser::get_envelop_parser();
+            break;
+    }
+
+    return get_accepted_response(command.type);
+}
 
 SMTPResponse MailReceiver::get_welcome_response() const { return {220, "sre - smtp server"}; }
 SMTPResponse MailReceiver::get_accepted_response(const SMTPCommandType& type) const {
