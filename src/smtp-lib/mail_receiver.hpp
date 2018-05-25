@@ -2,9 +2,9 @@
 
 #include <memory>
 
-#include "mail_parser.hpp"
 #include "connection.hpp"
 #include "mail_builder.hpp"
+#include "mail_parser.hpp"
 #include "mail_state_machine.hpp"
 
 class MailReceiver {

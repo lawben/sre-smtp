@@ -19,18 +19,19 @@ void MailReceiver::run() {
 
         if (parser_state == ParserStatus::INCOMPLETE) continue;
         if (parser_state != ParserStatus::COMPLETE) {
+            m_parser.get_command();
             auto response = get_parser_error_response(parser_state);
             send_response(response);
             continue;
-		}
+        }
         try {
-			const auto command = m_parser.get_command();
+            const auto command = m_parser.get_command();
 
             if (parser_state == ParserStatus::COMPLETE) {
                 auto response = handle_complete_command(command);
                 send_response(response);
                 continue;
-			}
+            }
         } catch (const std::runtime_error& e) {
             auto response = get_error_response(e);
             send_response(response);

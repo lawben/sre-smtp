@@ -2,8 +2,6 @@
 
 ParserStatus MailParser::accept(const ParserRequest& request) {
     m_buffer.append(request);
-    // if no type, search for identifier
-
     return parser_status();
 };
 
@@ -19,7 +17,7 @@ ParserStatus MailParser::parser_status() {
 
     if (pos == std::string::npos) return ParserStatus::INCOMPLETE;
     if (pos + m_delemiter.size() == m_buffer.size()) return ParserStatus::COMPLETE;
-    return ParserStatus::TO_LONG;
+    return ParserStatus::TOO_LONG;
 }
 
 void MailParser::extract_command_type() {
@@ -30,7 +28,7 @@ void MailParser::extract_command_type() {
         if (conversion.first == prefix) {
             m_command.type = conversion.second;
             m_buffer.erase(0, conversion.first.size());
-            break;
+            return;
         }
     }
 }
