@@ -41,6 +41,9 @@ void MailReceiver::handle_request(const ParserRequest& request) {
             response = get_error_response(parser_state);
         }
 
+        if (m_mail_completed) handle_complete_mail();
+        if (m_mail_reset) handle_reset_mail();
+
         send_response(response);
     }
 }
@@ -63,18 +66,25 @@ SMTPResponse MailReceiver::handle_accepted_command(const SMTPCommand& command) {
     return get_accepted_response(command.type);
 }
 
-void MailReceiver::on_mail_finished() {
-    m_parser = MailParser::get_envelop_parser();
+void MailReceiver::handle_complete_mail() {
+    m_mail_completed = false;
 
-    try {
-        auto mail = m_mail_builder.build();
-        // m_mail_persister.persist(mail);
-    } catch (const std::runtime_error& e) {
-        // TODO: log error, return msg to client?
-    }
+    auto mail = m_mail_builder.build();
+    // m_mail_persister.persist(mail);
 }
 
-void MailReceiver::on_mail_reset() { m_parser = MailParser::get_envelop_parser(); }
+void MailReceiver::handle_reset_mail() { 
+	m_mail_reset = false;
+	m_mail_builder.reset();
+	m_parser = MailParser::get_envelop_parser();
+}
+
+void MailReceiver::on_mail_finished() {
+    m_parser = MailParser::get_envelop_parser();
+    m_mail_completed = true;
+}
+
+void MailReceiver::on_mail_reset() { m_mail_reset = true; }
 
 void MailReceiver::on_content_start() { m_parser = MailParser::get_content_parser(); }
 
@@ -108,6 +118,4 @@ SMTPResponse MailReceiver::get_error_response(const std::exception& e) {
     return {500, msg};
 }
 
-SMTPResponse MailReceiver::get_error_response() {
-    return {500, "Internal error."};
-}
+SMTPResponse MailReceiver::get_error_response() { return {500, "Internal error."}; }

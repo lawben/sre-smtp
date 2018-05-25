@@ -37,24 +37,6 @@ bool MailBuilder::is_mail_valid() {
 
 void MailBuilder::reset() { m_mail_under_construction = Mail(); }
 
-void MailBuilder::reset(SMTPCommandType type) { 
-    switch (type) {
-        case SMTPCommandType::MAIL: {
-            m_mail_under_construction.from = "";
-            break;
-        }
-        case SMTPCommandType::RCPT: {
-            m_mail_under_construction.to.clear();
-            break;
-        }
-        case SMTPCommandType::DATA: {
-            m_mail_under_construction.data = "";
-            break;
-        }
-        default: { throw std::runtime_error("SMTPCommandType is invalide for MailBuilder."); }
-    }
-}
-
 void MailBuilder::set_from(const std::string& from) {
     if (!m_mail_under_construction.from.empty()) throw std::runtime_error("From already defined.");
     m_mail_under_construction.from = from;

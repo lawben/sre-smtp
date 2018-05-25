@@ -10,7 +10,6 @@ class MailBuilder {
     void add(SMTPCommand command);
 
 	void reset();
-    void reset(SMTPCommandType type);
 
   private:
     Mail m_mail_under_construction;

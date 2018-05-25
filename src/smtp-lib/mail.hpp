@@ -6,18 +6,14 @@
 class MailBuilder;
 
 class Mail {
-  friend MailBuilder;
+    friend MailBuilder;
 
   protected:
     Mail(){};
-    Mail(std::string from, std::vector<std::string> to, std::string data) :
-	from(from),
-	to(to),
-	data(data){};
+    Mail(std::string from, std::vector<std::string> to, std::string data) : from(from), to(to), data(data){};
 
   public:
     std::string from;
     std::vector<std::string> to;
-
-	std::string data;
+    std::string data;
 };

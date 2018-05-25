@@ -55,9 +55,11 @@ bool MailStateMachine::is_valid_command(const SMTPCommandType& type) {
 void MailStateMachine::mail_reset_transition() {
     if (m_on_mail_reset) m_on_mail_reset();
 }
+
 void MailStateMachine::enter_content_transition() {
     if (m_on_content_start) m_on_content_start();
 }
+
 void MailStateMachine::mail_finish_transition() {
     if (m_on_mail_finish) m_on_mail_finish();
 }

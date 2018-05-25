@@ -28,7 +28,7 @@ TEST_CASE("build simple mail", "[unit][mail_builder]") {
     CHECK(mail.to[0] == to);
 }
 
-TEST_CASE("reset mail object", "[unit][mail_builder]") {
+TEST_CASE("build mail with multiple receivers", "[unit][mail_builder]") {
     MailBuilder builder;
 
     std::string from("sender@test.hpi");
@@ -91,34 +91,6 @@ TEST_CASE("reset all", "[unit][mail_builder]") {
 	auto mail = builder.build();
 
 	CHECK(mail.from == from);
-    CHECK(mail.data == data);
-
-    REQUIRE(mail.to.size() == 1);
-    CHECK(mail.to[0] == to);
-}
-
-TEST_CASE("reset parts", "[unit][mail_builder]") {
-    MailBuilder builder;
-
-    std::string data("Hello");
-    std::string from("sender@test.hpi");
-    std::string to("receiver@test.hpi");
-
-    builder.add({SMTPCommandType::MAIL, "Invalid"});
-    builder.add({SMTPCommandType::DATA, "Invalid"});
-    builder.add({SMTPCommandType::RCPT, "Invalid"});
-
-    builder.reset(SMTPCommandType::MAIL);
-    builder.reset(SMTPCommandType::DATA);
-    builder.reset(SMTPCommandType::RCPT);
-
-    builder.add({SMTPCommandType::MAIL, from});
-    builder.add({SMTPCommandType::DATA, data});
-    builder.add({SMTPCommandType::RCPT, to});
-
-    auto mail = builder.build();
-
-    CHECK(mail.from == from);
     CHECK(mail.data == data);
 
     REQUIRE(mail.to.size() == 1);

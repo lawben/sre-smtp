@@ -21,15 +21,20 @@ class MailReceiver {
     Connection m_connection;
     bool m_stop_requested = false;
     bool m_error_occurred = false;
+    bool m_mail_completed = false;
+    bool m_mail_reset = false;
+
     MailParser m_parser;
     MailStateMachine m_state_machine;
     MailBuilder m_mail_builder;
 
-	void handle_request(const ParserRequest& request);
+    void handle_request(const ParserRequest& request);
 
-	
     SMTPResponse handle_accepted_command(const SMTPCommand& command);
     SMTPResponse handle_complete_command(const SMTPCommand& command);
+
+	void handle_complete_mail();
+    void handle_reset_mail();
 
     void on_mail_finished();
     void on_mail_reset();
