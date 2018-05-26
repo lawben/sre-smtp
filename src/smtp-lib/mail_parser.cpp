@@ -3,14 +3,14 @@
 ParserStatus MailParser::accept(const ParserRequest& request) {
     m_buffer.append(request);
     return parser_status();
-};
+}
 
 SMTPCommand MailParser::get_command() {
     if (m_command.type == SMTPCommandType::INVALID) extract_command_type();
     extract_command_type();
     extract_data();
     return std::move(m_command);
-};
+}
 
 ParserStatus MailParser::parser_status() {
     const auto pos = m_buffer.find(m_delemiter);
