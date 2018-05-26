@@ -5,7 +5,7 @@
 #include "mail_parser.hpp"
 
 MailReceiver::MailReceiver(Connection connection)
-    : m_connection(std::move(connection)), m_parser(MailParser::get_envelop_parser()), m_stop_requested(false) {
+    : m_connection(std::move(connection)), m_parser(MailParser::get_envelop_parser()) {
     m_state_machine.set_mail_rest_callback(std::bind(&MailReceiver::on_mail_reset, this));
     m_state_machine.set_content_start_callback(std::bind(&MailReceiver::on_content_start, this));
     m_state_machine.set_mail_finish_callback(std::bind(&MailReceiver::on_mail_finished, this));
