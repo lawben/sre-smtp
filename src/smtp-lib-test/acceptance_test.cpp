@@ -4,6 +4,12 @@
 #include "smtp-lib/smtp_server.hpp"
 
 #include "smtp-lib-test/helpers.hpp"
+#include "smtp-lib-test/scenario_runner.hpp"
+
+TEST_CASE("scenario runner") {
+    ScenarioRunner runner;
+	CHECK( runner.run_test_scenario("basic") == 0);
+}
 
 TEST_CASE("acceptance test", "[acceptance][server]") {
     uint16_t server_port = 5555;
