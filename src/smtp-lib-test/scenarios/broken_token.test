@@ -1,0 +1,13 @@
+# Checks invald command tokens.
+
+S: 220
+C: CMDLASDL\r\n
+S: 500
+C: MAIL FROM:<Martin@JA.NE>\r\n
+S: 500
+C: HELO 127.0.0.1\r\n
+S: 250
+C: HELO 127.0.0.1\r\nBROKEN
+S: 500
+C: MAIL FROM:<Martin@JA.NE>\r\n
+S: 250

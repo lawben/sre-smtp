@@ -1,0 +1,39 @@
+# Simple test case for a single mail.
+
+S: 220
+C: HELO 127.0.0.1\r\n
+S: 250
+C: MAIL FROM:<Martin@JA.NE>\r\n
+S: 250
+C: RCPT TO:<Lawrenc@WTF.GBR>\r\n
+S: 250
+C: RCPT TO:<Fabi@LALA.JAJ>\r\n
+S: 250
+C: RCPT TO:<Jan@OCH.NO>\r\n
+S: 250
+C: DATA\r\n
+S: 354
+C: \r\n
+C: Blah blah blah...\r\n
+C: ...etc. etc. etc.\r\n
+C: .\r\n
+S: 250
+C: HELO 127.0.0.1\r\n
+S: 250
+C: MAIL FROM:<Martin@JA.NE>\r\n
+S: 250
+C: RCPT TO:<Lawrenc@WTF.GBR>\r\n
+S: 250
+C: RCPT TO:<Fabi@LALA.JAJ>\r\n
+S: 250
+C: RCPT TO:<Jan@OCH.NO>\r\n
+S: 250
+C: DATA\r\n
+S: 354
+C: \r\n
+C: Blah blah blah...\r\n
+C: ...etc. etc. etc.\r\n
+C: .\r\n
+S: 250
+C: QUIT\r\n
+S: 221

@@ -1,0 +1,7 @@
+# Simple test case for a single mail.
+
+S: 220
+C: RCPT TO:<Jan@OCH.NO>\r\n
+S: 500
+C: DATA\r\n
+S: 500

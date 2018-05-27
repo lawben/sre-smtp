@@ -1,158 +1,25 @@
 #include "catch/catch.hpp"
 
-#include "smtp-lib/raw_socket.hpp"
-#include "smtp-lib/smtp_server.hpp"
-
-#include "smtp-lib-test/helpers.hpp"
 #include "smtp-lib-test/scenario_runner.hpp"
 
-TEST_CASE("scenario runner") {
-    ScenarioRunner runner;
-	CHECK( runner.run_test_scenario("basic") == 0);
-}
-
 TEST_CASE("acceptance test", "[acceptance][server]") {
-    uint16_t server_port = 5555;
-    std::string server_address = "127.0.0.1";
-    SMTPServer server(server_port);
-    auto server_thread = std::thread(&SMTPServer::run, &server);
-
     SECTION("handle valid mail") {
-        uint16_t client_port = 5556;
-        auto client = RawSocket::new_socket(client_port);
-        client.connect(server_address, server_port);
-
-        wait_for_network_interaction();
-
-        CHECK(check_return_code(client, "220"));
-
-        client.write("HELO 127.0.0.1\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("MAIL FROM:<Martin@JA.NE>\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("RCPT TO:<Lawrenc@WTF.GBR>\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("RCPT TO:<Fabi@LALA.JAJ>\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("RCPT TO:<Jan@OCH.NO>\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("DATA\r\n");
-        CHECK(check_return_code(client, "354"));
-
-        client.write("\r\n");
-        client.write("Blah blah blah...\r\n");
-        client.write("...etc. etc. etc.\r\n");
-        client.write(".\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("QUIT\r\n");
-        CHECK(check_return_code(client, "221"));
-    }
-
-    SECTION("handle broken token") {
-        uint16_t client_port = 5556;
-        auto client = RawSocket::new_socket(client_port);
-        client.connect(server_address, server_port);
-
-        wait_for_network_interaction();
-
-        CHECK(check_return_code(client, "220"));
-
-        client.write("CMDLASDL\r\n");
-        CHECK(check_return_code(client, "500"));
-
-        client.write("HELO 127.0.0.1\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("HELO 127.0.0.1\r\nBROKEN");
-        CHECK(check_return_code(client, "500"));
-
-        client.write("MAIL FROM:<Martin@JA.NE>\r\n");
-        CHECK(check_return_code(client, "250"));
+        ScenarioRunner runner;
+        CHECK(runner.run_test_scenario("basic") == 0);
     }
 
     SECTION("handle multiple mails") {
-        uint16_t client_port = 5556;
-        auto client = RawSocket::new_socket(client_port);
-        client.connect(server_address, server_port);
+        ScenarioRunner runner;
+        CHECK(runner.run_test_scenario("multiple_mails") == 0);
+    }
 
-        wait_for_network_interaction();
-
-        CHECK(check_return_code(client, "220"));
-
-        client.write("HELO 127.0.0.1\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("MAIL FROM:<Martin@JA.NE>\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("RCPT TO:<Lawrenc@WTF.GBR>\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("RCPT TO:<Fabi@LALA.JAJ>\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("RCPT TO:<Jan@OCH.NO>\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("DATA\r\n");
-        CHECK(check_return_code(client, "354"));
-
-        client.write("\r\n");
-        client.write("Blah blah blah...\r\n");
-        client.write("...etc. etc. etc.\r\n");
-        client.write(".\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("HELO 127.0.0.1\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("MAIL FROM:<Martin@JA.NE>\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("RCPT TO:<Lawrenc@WTF.GBR>\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("RCPT TO:<Fabi@LALA.JAJ>\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("RCPT TO:<Jan@OCH.NO>\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("DATA\r\n");
-        CHECK(check_return_code(client, "354"));
-
-        client.write("\r\n");
-        client.write("Blah blah blah...\r\n");
-        client.write("...etc. etc. etc.\r\n");
-        client.write(".\r\n");
-        CHECK(check_return_code(client, "250"));
-
-        client.write("QUIT\r\n");
-        CHECK(check_return_code(client, "221"));
+    SECTION("handle broken token") {
+        ScenarioRunner runner;
+        CHECK(runner.run_test_scenario("broken_token") == 0);
     }
 
     SECTION("wrong token order") {
-        uint16_t client_port = 5556;
-        auto client = RawSocket::new_socket(client_port);
-        client.connect(server_address, server_port);
-
-        wait_for_network_interaction();
-
-        CHECK(check_return_code(client, "220"));
-
-        client.write("RCPT TO:<Jan@OCH.NO>\r\n");
-        CHECK(check_return_code(client, "500"));
-
-        client.write("DATA\r\n");
-        CHECK(check_return_code(client, "500"));
+        ScenarioRunner runner;
+        CHECK(runner.run_test_scenario("wron_token") == 0);
     }
-
-    server.stop();
-    server_thread.join();
 }
