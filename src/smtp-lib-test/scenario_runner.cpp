@@ -65,10 +65,10 @@ void ScenarioRunner::send_to_server(const std::string& message) { m_client.write
 void ScenarioRunner::wait_for_network_interaction() { std::this_thread::sleep_for(std::chrono::milliseconds(100)); }
 
 void ScenarioRunner::clean_up_command(std::string& line) {
-    auto i = line.size() - 1;
     if (line.find('\r', line.size() - 1) != std::string::npos) {
         line.erase(line.size() - 1);
     }
+
     std::string search = "\\r\\n";
     std::string replace = "\r\n";
     size_t pos = 0;
