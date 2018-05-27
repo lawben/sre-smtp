@@ -23,3 +23,10 @@ TEST_CASE("acceptance test", "[acceptance][server]") {
         CHECK(runner.run_test_scenario("wrong_token") == 0);
     }
 }
+
+TEST_CASE("not implemented behavior", "[acceptance][server][!hide]") {
+    SECTION("rfc 5321 d 1") {
+        ScenarioRunner runner;
+        CHECK(runner.run_test_scenario("rfc5321_d_1") == 0);
+    }
+}
