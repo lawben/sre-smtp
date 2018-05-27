@@ -20,6 +20,6 @@ TEST_CASE("acceptance test", "[acceptance][server]") {
 
     SECTION("wrong token order") {
         ScenarioRunner runner;
-        CHECK(runner.run_test_scenario("wron_token") == 0);
+        CHECK(runner.run_test_scenario("wrong_token") == 0);
     }
 }
