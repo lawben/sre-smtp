@@ -10,4 +10,4 @@ void Connection::write(const std::string& message) { m_raw_socket.write(Bytes(me
 
 bool Connection::is_valid() { return m_raw_socket.is_valid(); }
 
-void Connection::close() { 	m_raw_socket.close(); }
+void Connection::close() { m_raw_socket.close(); }

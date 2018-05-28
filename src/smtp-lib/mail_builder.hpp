@@ -9,14 +9,14 @@ class MailBuilder {
     Mail build();
     void add(SMTPCommand command);
 
-	void reset();
+    void reset();
 
   private:
     Mail m_mail_under_construction;
 
-	bool is_mail_valid();
+    bool is_mail_valid();
 
-	void set_from(const std::string& from);
-	void append_to(const std::string& to);
-	void set_data(const std::string& data);
+    void set_from(const std::string& from);
+    void append_to(const std::string& to);
+    void set_data(const std::string& data);
 };

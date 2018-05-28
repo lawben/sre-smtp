@@ -73,10 +73,10 @@ void MailReceiver::handle_complete_mail() {
     // m_mail_persister.persist(mail);
 }
 
-void MailReceiver::handle_reset_mail() { 
-	m_mail_reset = false;
-	m_mail_builder.reset();
-	m_parser = MailParser::get_envelop_parser();
+void MailReceiver::handle_reset_mail() {
+    m_mail_reset = false;
+    m_mail_builder.reset();
+    m_parser = MailParser::get_envelop_parser();
 }
 
 void MailReceiver::on_mail_finished() {

@@ -166,4 +166,3 @@ TEST_CASE("reset transmission", "[unit][mail_state_machine]") {
         }
     }
 }
-

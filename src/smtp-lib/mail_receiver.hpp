@@ -33,7 +33,7 @@ class MailReceiver {
     SMTPResponse handle_accepted_command(const SMTPCommand& command);
     SMTPResponse handle_complete_command(const SMTPCommand& command);
 
-	void handle_complete_mail();
+    void handle_complete_mail();
     void handle_reset_mail();
 
     void on_mail_finished();

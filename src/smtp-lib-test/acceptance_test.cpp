@@ -26,10 +26,10 @@ TEST_CASE("acceptance test", "[acceptance][server]") {
         client.write("MAIL FROM:<Martin@JA.NE>\r\n");
         CHECK(check_return_code(client, "250"));
 
-        client.write("RCPT TO:<Lawrenc@WTF.GBR>\r\n");
+        client.write("RCPT TO:<Lawrence@WTF.GBR>\r\n");
         CHECK(check_return_code(client, "250"));
 
-        client.write("RCPT TO:<Fabi@LALA.JAJ>\r\n");
+        client.write("RCPT TO:<Fabi@LALA.JAJA>\r\n");
         CHECK(check_return_code(client, "250"));
 
         client.write("RCPT TO:<Jan@OCH.NO>\r\n");

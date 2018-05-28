@@ -50,7 +50,7 @@ TEST_CASE("build mail with multiple receivers", "[unit][mail_builder]") {
     CHECK(mail.to[0] == to_1);
     CHECK(mail.to[1] == to_2);
 
-	REQUIRE_THROWS_AS(builder.build(), std::runtime_error);
+    REQUIRE_THROWS_AS(builder.build(), std::runtime_error);
 }
 
 TEST_CASE("multiple from", "[unit][mail_builder]") {
@@ -84,13 +84,13 @@ TEST_CASE("reset all", "[unit][mail_builder]") {
 
     builder.reset();
 
-	builder.add({SMTPCommandType::MAIL, from});
+    builder.add({SMTPCommandType::MAIL, from});
     builder.add({SMTPCommandType::DATA, data});
     builder.add({SMTPCommandType::RCPT, to});
 
-	auto mail = builder.build();
+    auto mail = builder.build();
 
-	CHECK(mail.from == from);
+    CHECK(mail.from == from);
     CHECK(mail.data == data);
 
     REQUIRE(mail.to.size() == 1);

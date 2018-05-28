@@ -23,8 +23,8 @@ void MailBuilder::add(SMTPCommand command) {
             set_data(command.data);
             break;
         }
-        default: 
-			break;
+        default:
+            break;
     }
 }
 
