@@ -1,90 +1,41 @@
-#include <algorithm>
-#include <cassert>
-#include <map>
-#include <stdexcept>
-
 #include "mail_parser.hpp"
 
-namespace {
-static const std::string DATA_END_TOKEN = "\r\n.\r\n";
-static const std::map<std::string, SMTPCommandType> string_to_token{{"helo ", SMTPCommandType::HELO},
-                                                                    {"mail from:", SMTPCommandType::MAIL},
-                                                                    {"rcpt to:", SMTPCommandType::RCPT},
-                                                                    {"data", SMTPCommandType::DATA_BEGIN},
-                                                                    {"quit", SMTPCommandType::QUIT}};
-}  // namespace
-
-std::vector<SMTPCommand> MailParser::accept(const ParserRequest& request, SimplifiedSMTPState state) {
-    m_buffer.append(request.message);
-    std::vector<SMTPCommand> responses;
-
-    while (get_buffer_status(state) == BufferStatus::COMPLETE) {
-        const auto command = parse_buffer(state);
-        responses.push_back(command);
-    }
-
-    return responses;
+ParserStatus MailParser::accept(const ParserRequest& request) {
+    m_buffer.append(request);
+    return parser_status();
 }
 
-MailParser::BufferStatus MailParser::get_buffer_status(SimplifiedSMTPState state) {
-    size_t token_position = std::string::npos;
-    switch (state) {
-        case SimplifiedSMTPState::ENVELOPE:
-            token_position = m_buffer.find(NEWLINE_TOKEN);
-            break;
-        case SimplifiedSMTPState::CONTENT:
-            token_position = m_buffer.find(DATA_END_TOKEN);
-            break;
-        default:
-            throw std::runtime_error("Case not implemented.");
-    }
-    return token_position == std::string::npos ? BufferStatus::INCOMPLETE : BufferStatus::COMPLETE;
+SMTPCommand MailParser::get_command() {
+    if (m_command.type == SMTPCommandType::INVALID) extract_command_type();
+    extract_command_type();
+    extract_data();
+    return std::move(m_command);
 }
 
-SMTPCommand MailParser::parse_buffer(SimplifiedSMTPState state) {
-    switch (state) {
-        case SimplifiedSMTPState::ENVELOPE:
-            return parse_envelope_buffer();
-        case SimplifiedSMTPState::CONTENT:
-            return parse_content_buffer();
-        default:
-            throw std::runtime_error("Case not implemented.");
-    }
+ParserStatus MailParser::parser_status() {
+    const auto pos = m_buffer.find(m_delemiter);
+
+    if (pos == std::string::npos) return ParserStatus::INCOMPLETE;
+    if (pos + m_delemiter.size() == m_buffer.size()) return ParserStatus::COMPLETE;
+    return ParserStatus::TOO_LONG;
 }
 
-SMTPCommand MailParser::parse_envelope_buffer() {
-    SMTPCommand command;
-    command.type = SMTPCommandType::INVALID;
-    command.data = "";
-
-    for (const auto& conversion : string_to_token) {
+void MailParser::extract_command_type() {
+    for (const auto& conversion : m_string_to_tokentype) {
         std::string prefix = m_buffer.substr(0, conversion.first.size());
         std::transform(prefix.begin(), prefix.end(), prefix.begin(), ::tolower);
 
         if (conversion.first == prefix) {
-            command.type = conversion.second;
-            command.data = conversion.first;
-            break;
+            m_command.type = conversion.second;
+            m_buffer.erase(0, conversion.first.size());
+            return;
         }
     }
-
-    const auto end = m_buffer.find(NEWLINE_TOKEN);
-    const auto data = m_buffer.substr(command.data.length(), end - command.data.length());
-    m_buffer.erase(0, end + NEWLINE_TOKEN.length());
-    command.data = data;
-    return command;
 }
 
-SMTPCommand MailParser::parse_content_buffer() {
-    auto data_end_position = m_buffer.find(DATA_END_TOKEN);
-
-    // This case should never occur, because we checked wheter the buffer is complete before
-    if (data_end_position == std::string::npos) {
-        throw std::runtime_error("Implementation is broken!");
-    }
-
-    const auto data = m_buffer.substr(0, data_end_position);
-    m_buffer.erase(0, data_end_position + DATA_END_TOKEN.length());
-
-    return {SMTPCommandType::DATA, data};
+void MailParser::extract_data() {
+    const auto end = m_buffer.find(m_delemiter);
+    m_buffer.erase(end);
+    m_command.data = m_buffer;
+    m_buffer.erase(0);
 }
