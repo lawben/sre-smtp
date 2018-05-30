@@ -1,4 +1,3 @@
-
 # Find the C++ stdlib filesytem library.
 # Output variables:
 #  FILESYSTEM_LIBRARY  : Library path of filesystem library

@@ -1,5 +1,6 @@
 #include "mail_store.hpp"
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <random>
