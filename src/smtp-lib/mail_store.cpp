@@ -19,8 +19,8 @@ namespace fs = std::experimental::filesystem;
 namespace {
 static const fs::path MAIL_FOLDER = "mails";
 
-std::string random_string(const size_t length) {
-    auto randchar = []() -> char {
+static std::string random_string(const size_t length) {
+    auto randchar = []() {
         const char charset[] =
             "0123456789"
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -47,8 +47,5 @@ bool MailStore::store_mail(const Mail& mail) {
     }
 
     mail_file << "CONTENT:\n" << mail.data;
-
-    mail_file.flush();
-    mail_file.close();
     return true;
 }
