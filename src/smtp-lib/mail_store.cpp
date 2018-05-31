@@ -21,7 +21,7 @@ static const fs::path MAIL_FOLDER = "mails";
 
 std::string random_string(const size_t length) {
     auto randchar = []() {
-        const char charset[] =
+        static const char charset[] =
             "0123456789"
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             "abcdefghijklmnopqrstuvwxyz";
