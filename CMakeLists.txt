@@ -23,18 +23,22 @@ add_library(
         src/smtp-lib/mail_receiver.hpp
         src/smtp-lib/smtp_server.cpp
         src/smtp-lib/smtp_server.hpp
-        src/smtp-lib/smtp_utils.hpp)
+        src/smtp-lib/smtp_utils.hpp src/smtp-lib/mail_store.cpp src/smtp-lib/mail_store.hpp)
 
 set_target_properties(smtp-lib PROPERTIES LINKER_LANGUAGE CXX)
 set_property(TARGET smtp-lib PROPERTY CXX_STANDARD 17)
 target_include_directories(smtp-lib PRIVATE src/smtp-lib)
 
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/scripts/cmake ${CMAKE_MODULE_PATH}) # To allow CMake to locate Find*.cmake files
+
 if(MSVC)
 	target_link_libraries(smtp-lib wsock32 ws2_32)
 else()
+    find_package(FS REQUIRED)
+
 	set(THREADS_PREFER_PTHREAD_FLAG ON)
 	find_package(Threads REQUIRED)
-	target_link_libraries(smtp-lib Threads::Threads)
+    target_link_libraries(smtp-lib Threads::Threads ${FILESYSTEM_LIBRARY})
 
     set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Wextra -pedantic -Werror -Wno-unused-parameter")
 

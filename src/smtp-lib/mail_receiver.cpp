@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "mail_parser.hpp"
+#include "mail_store.hpp"
 
 MailReceiver::MailReceiver(Connection connection)
     : m_connection(std::move(connection)), m_parser(MailParser::get_envelop_parser()) {
@@ -69,8 +70,8 @@ SMTPResponse MailReceiver::handle_accepted_command(const SMTPCommand& command) {
 void MailReceiver::handle_complete_mail() {
     m_mail_completed = false;
 
-    auto mail = m_mail_builder.build();
-    // m_mail_persister.persist(mail);
+    const auto mail = m_mail_builder.build();
+    MailStore::store_mail(mail);
 }
 
 void MailReceiver::handle_reset_mail() {

@@ -49,15 +49,15 @@ matrix:
       env: CONFIG=Release
       compiler: gcc
 
-    # OSX + apple-clang + debug
-    - os: osx
-      compiler: clang
-      env: CONFIG=Debug
-
-    # OSX + apple-clang + release
-    - os: osx
-      compiler: clang
-      env: CONFIG=Release
+#    # OSX + apple-clang + debug
+#    - os: osx
+#      compiler: clang
+#      env: CONFIG=Debug
+#
+#    # OSX + apple-clang + release
+#    - os: osx
+#      compiler: clang
+#      env: CONFIG=Release
 
 script:
   - cd "${TRAVIS_BUILD_DIR}"

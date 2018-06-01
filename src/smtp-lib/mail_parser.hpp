@@ -28,8 +28,8 @@ class MailParser {
     static MailParser get_content_parser() { return MailParser(DATA_END_TOKEN, content_tokens); }
     static MailParser get_envelop_parser() { return MailParser(NEWLINE_TOKEN, envelop_tokens); }
 
-    MailParser(const std::string& delemiter, const std::map<std::string, SMTPCommandType>& string_to_tokentype)
-        : m_delemiter(delemiter),
+    MailParser(const std::string& delimiter, const std::map<std::string, SMTPCommandType>& string_to_tokentype)
+        : m_delemiter(delimiter),
           m_string_to_tokentype(string_to_tokentype),
           m_command({SMTPCommandType::INVALID, ""}){};
 
