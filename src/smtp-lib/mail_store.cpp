@@ -48,8 +48,9 @@ bool MailStore::store_mail(const Mail& mail) {
                       cpr::Body{json.dump(4)}, cpr::Timeout{5000});
 
         if (response.error.code == cpr::ErrorCode::OK) {
-            break;
+            return true;
         }
     }
 
+    return false;
 }
