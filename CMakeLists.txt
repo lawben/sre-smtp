@@ -3,6 +3,10 @@ project(sre-smtp C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(JSON_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src/json/single_include)
+set(BUILD_CPR_TESTS OFF CACHE BOOL "Don't build cpr tests")
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src/cpr)
+
 add_library(
         smtp-lib
 
@@ -27,17 +31,18 @@ add_library(
 
 set_target_properties(smtp-lib PROPERTIES LINKER_LANGUAGE CXX)
 set_property(TARGET smtp-lib PROPERTY CXX_STANDARD 17)
-target_include_directories(smtp-lib PRIVATE src/smtp-lib)
+target_include_directories(smtp-lib PRIVATE src/smtp-lib ${JSON_INCLUDE_DIRS})
+target_link_libraries(smtp-lib ${CPR_LIBRARIES})
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/scripts/cmake ${CMAKE_MODULE_PATH}) # To allow CMake to locate Find*.cmake files
 
 if(MSVC)
-	target_link_libraries(smtp-lib wsock32 ws2_32)
+    target_link_libraries(smtp-lib wsock32 ws2_32)
 else()
     find_package(FS REQUIRED)
 
-	set(THREADS_PREFER_PTHREAD_FLAG ON)
-	find_package(Threads REQUIRED)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
     target_link_libraries(smtp-lib Threads::Threads ${FILESYSTEM_LIBRARY})
 
     set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Wextra -pedantic -Werror -Wno-unused-parameter")
@@ -50,8 +55,8 @@ else()
 endif()
 
 add_executable(
-		smtp-lib-test 
-		
+        smtp-lib-test 
+
         src/smtp-lib-test/acceptance_test.cpp
         src/smtp-lib-test/connection_test.cpp
         src/smtp-lib-test/helpers.hpp
